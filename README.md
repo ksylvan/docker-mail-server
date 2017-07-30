@@ -1,4 +1,4 @@
-# vpn-server
+# mail-server
 
 Ansible Playbooks for setting up a secured ssh mail and web server.
 
