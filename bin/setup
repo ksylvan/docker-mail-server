@@ -36,10 +36,36 @@ prompt_with_default "deploy user password" vault_deploy_password
 server_logwatch_email=youremail@example.com
 prompt_with_default "logwatch reports email" server_logwatch_email
 
-for i in server_host_name server_deploy_user_name server_logwatch_email
+letsencrypt_email=root@${server_host_name}
+prompt_with_default "letsencrypt email" letsencrypt_email
+
+for i in server_host_name server_deploy_user_name server_logwatch_email \
+  letsencrypt_email
 do
   echo "$i: $(eval echo \$$i)" >> $VARS
 done
+
+tmp=.tmp$$; touch $tmp; chmod 600 $tmp
+trap "rm -f $tmp" EXIT
+echo ''
+echo 'Letsencrypt domains setup'
+echo ''
+end_loop=no
+while [ $end_loop = 'no' ]; do
+  read -p "Type in a host/domain name (or . to end): " my_host
+  if [ "$my_host" = "." ]; then break; fi
+  if [ -z "$my_host" ]; then
+    echo "You must enter a host/domain. Try again."
+    continue
+  fi
+  echo "  - $my_host" >> $tmp
+done
+if [ ! -s $tmp ]; then
+  echo "ERROR: You must have at least one domain!"
+  exit 1
+fi
+echo 'letsencrypt_domains:' >> $VAULT_VARS
+cat $tmp >> $VAULT_VARS
 
 vault_root_encrypted_password=$(./bin/mkpasswd "$vault_root_password")
 if [ $? -ne 0 ]; then exit $?; fi

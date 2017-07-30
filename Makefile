@@ -1,4 +1,4 @@
-# Makefile for VPN server setup
+# Makefile for mail server setup
 #
 .PHONY: all bootstrap mailserver rebootstrap reset clean edit redo
 

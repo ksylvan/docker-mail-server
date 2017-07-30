@@ -4,3 +4,4 @@
 
   roles:
   - ispmail-packages
+  - ksylvan.letsencrypt

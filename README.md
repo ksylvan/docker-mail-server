@@ -29,8 +29,7 @@ using `ansible-vault`.
 ## User password hashes
 
 Refer to the [Ansible docs regarding user passwords](http://docs.ansible.com/ansible/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module)
-to understand how we generate the Linux user password hashes to make or
-modify user accounts on the VPN server.
+to understand how we generate the Linux user password hashes.
 
 To ensure this works, make sure that the `./bin/mkpasswd` script works:
 
