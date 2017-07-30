@@ -11,13 +11,18 @@ ifeq "${DEPLOY_USER}" ""
 DEPLOY_USER=deploy
 endif
 
-all:
+ROLES=imported_roles/ksylvan.letsencrypt
+
+all: ${ROLES}
 	@if [ ! -r ${VAR_FILE} ]; then \
 		./bin/setup; \
 		if [ $$? -ne 0 ]; then exit $$?; fi; \
 		make bootstrap; \
 	fi; \
 	make mailserver
+
+imported_roles/ksylvan.letsencrypt:
+	ansible-galaxy install -p imported_roles -r requirements.yml
 
 mailserver:
 	echo "Running playbook using ${DEPLOY_USER} user"; \

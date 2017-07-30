@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Set up the variables used by OpenVPN set up tasks.
+# Set up the variables used by mailserver set up tasks.
 
 cd $(dirname $0)/..
 
