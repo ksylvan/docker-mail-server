@@ -1,0 +1,175 @@
+# Bootstrap Ubuntu server with some common secure settings
+---
+- hosts: all
+  gather_facts: false
+  become: true
+
+  # bootstrap python onto server
+  #
+  pre_tasks:
+  - name: Install python 2 if not there
+    raw: |
+      test -e /usr/bin/python || \
+      (apt -y update && apt install -y python-simplejson)
+    register: output
+    changed_when: output.stdout|trim() != ""
+  - name: Install sudo if not there
+    raw: |
+      test -e /usr/bin/sudo || apt install -y sudo
+    register: output
+    changed_when: output.stdout|trim() != ""
+
+  tasks:
+  # Deploy User setup
+  #
+  - name: Add deploy user
+    user: >
+      name={{ server_deploy_user_name }}
+      password="{{ server_deploy_password }}" shell=/bin/bash
+
+  - name: Add authorized keys for deploy user
+    authorized_key:
+      user: "{{ server_deploy_user_name }}"
+      key: "{{ lookup('file', item) }}"
+    with_items: "{{ server_deploy_public_keys }}"
+
+  - name: Add deploy user to sudoers
+    lineinfile:
+      dest: "/etc/sudoers.d/{{ server_deploy_user_name}}"
+      line: "{{ server_deploy_user_name }} ALL=(ALL) NOPASSWD: ALL"
+      state: present
+      create: yes
+
+# Now, with deploy user set up, we can use it to do the rest.
+# Especially important for when we shut the door on root ssh logins.
+#
+- hosts: all
+  remote_user: "{{ server_deploy_user_name }}"
+  become: true
+
+  tasks:
+  # Fixing the hostname
+  #
+  - command: cat /etc/hostname
+    register: etc_hostname
+    changed_when: false
+
+  - block:
+    - name: Set hostname
+      replace:
+        dest: /etc/hostname
+        regexp: '\b(.*)\b'
+        replace: '{{ server_host_name }}'
+    - hostname: name="{{ server_host_name }}"
+    when: etc_hostname.stdout|trim() != server_host_name
+
+  - name: Fix /etc/hosts
+    blockinfile:
+      dest: /etc/hosts
+      block: |
+        {% for item in ansible_all_ipv4_addresses %}
+        {{ item }} {{ server_host_name }}
+        {% endfor %}
+      marker: "# {mark} ANSIBLE MANAGED"
+
+  # Packages
+  #
+  - apt: name=aptitude state=present
+  - name: Update APT Package cache
+    apt: update_cache=yes cache_valid_time=3600
+
+  - name: Upgrade APT to the latest packages
+    apt: upgrade=safe
+
+  - name: Install required packages
+    apt: state=installed pkg={{ item }}
+    with_items: "{{ server_required_packages }}"
+
+  - name: Install optional packages
+    apt: state=installed pkg={{ item }}
+    with_items: "{{ server_optional_packages }}"
+
+  - name: Adjust APT update intervals
+    copy: src=files/apt_periodic dest=/etc/apt/apt.conf.d/10periodic
+
+  # Configure firewall
+  #
+  - service: name=ufw state=started
+
+  - name: Allow ssh traffic
+    ufw: rule=allow port={{ server_ssh_port }} proto=tcp
+
+  - name: Allow mosh traffic
+    ufw: rule=allow proto=udp port={{ server_mosh_from_port }}:{{ server_mosh_to_port }}
+    when: "'mosh' in server_optional_packages"
+
+  - name: Setup ufw (with deny default now)
+    ufw: state=enabled policy=deny
+
+  # Set up postfix for logwatch
+  #
+  - name: Set up Postfix to relay mail
+    debconf: name=postfix
+             question='{{ item.question }}'
+             value='{{ item.value }}'
+             vtype='{{ item.vtype }}'
+    with_items:
+      - { question: 'postfix/mailname', value: '{{ server_host_name }}', vtype: 'string' }
+      - { question: 'postfix/main_mailer_type', value: 'Internet Site', vtype: 'string' }
+
+  - name: Email log summary daily
+    lineinfile: dest=/etc/cron.daily/00logwatch
+                regexp="^/usr/sbin/logwatch"
+                line="/usr/sbin/logwatch --output mail --mailto {{ server_logwatch_email }} --detail high"
+                state=present create=yes
+
+  - name: New systemd unit to fix postfix /etc/resolv.conf
+    blockinfile:
+      path: /etc/systemd/system/fixpostfix.service
+      create: yes
+      block: |
+        [Unit]
+        Description=Fix poorly copied resolv.conf for postfix
+        Wants=network-online.target
+        After=network-online.target
+        [Service]
+        Type=oneshot
+        ExecStart=/bin/cp /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
+        [Install]
+        WantedBy=multi-user.target
+
+  - name: Fix boot order problem for postfix
+    systemd: name=fixpostfix.service enabled=true
+
+  # Root Password change
+  #
+  - name: Change root password
+    user: name=root password="{{ server_root_password }}"
+
+  # Lock down SSH
+  #
+  - name: Change ssh port
+    lineinfile: dest=/etc/ssh/sshd_config
+                regexp="^Port\s"
+                line="Port {{ server_ssh_port }}"
+                state=present
+    notify: Restart ssh
+
+  - name: Disallow password authentication
+    lineinfile: dest=/etc/ssh/sshd_config
+                regexp="^PasswordAuthentication"
+                line="PasswordAuthentication no"
+                state=present
+    notify: Restart ssh
+
+  - name: Disallow root SSH access
+    lineinfile: dest=/etc/ssh/sshd_config
+                regexp="^PermitRootLogin"
+                line="PermitRootLogin no"
+                state=present
+    notify: Restart ssh
+
+  handlers:
+
+  - name: Restart ssh
+    service: name=ssh state=restarted
