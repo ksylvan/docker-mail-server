@@ -3,5 +3,7 @@
   become: true
 
   roles:
-  - ispmail-packages
-  - ksylvan.letsencrypt
+  - docker
+
+  tasks:
+  - debug: msg="TODO"

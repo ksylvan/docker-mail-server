@@ -22,6 +22,3 @@ server_mosh_to_port: 60010
 
 server_deploy_password: "{{ vault_deploy_encrypted_password }}"
 server_root_password: "{{ vault_root_encrypted_password }}"
-
-letsencrypt_firewall: true
-letsencrypt_http_server: apache2

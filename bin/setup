@@ -64,8 +64,8 @@ if [ ! -s $tmp ]; then
   echo "ERROR: You must have at least one domain!"
   exit 1
 fi
-echo 'letsencrypt_domains:' >> $VAULT_VARS
-cat $tmp >> $VAULT_VARS
+echo 'letsencrypt_domains:' >> $VARS
+cat $tmp >> $VARS
 
 vault_root_encrypted_password=$(./bin/mkpasswd "$vault_root_password")
 if [ $? -ne 0 ]; then exit $?; fi
