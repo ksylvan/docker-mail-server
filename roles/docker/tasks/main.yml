@@ -1,2 +1,51 @@
 ---
-- debug: msg="DOCKER setup TODO"
+# Based on https://docs.docker.com/engine/installation/linux/docker-ce/debian/
+- name: remove any old docker versions
+  apt: name={{item}} state=absent purge=yes
+  with_items:
+  - docker
+  - docker-engine
+  - docker.io
+
+- name: allow apt to use a repository over HTTPS
+  apt: name={{item}} state=installed update_cache=yes
+  with_items:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg2
+  - software-properties-common
+
+- name: See if Docker Official GPG key is already installed
+  command: apt-key finger 'Docker'
+  register: docker_apt
+  changed_when: false
+
+- name: Add Docker official GPG key
+  shell: >
+    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+  when: docker_apt.stdout == ""
+
+- name: Add docker repo
+  apt_repository:
+    repo: >
+      deb [arch=amd64] https://download.docker.com/linux/debian
+      {{ ansible_lsb.codename }} stable
+    state: present
+
+- name: Install docker-ce
+  apt: name={{item}} state=installed update_cache=yes
+  with_items:
+  - docker-ce
+  - docker-compose
+
+- name: docker group
+  group: name=docker state=present
+  notify:
+  - restart docker
+
+- name: Add deploy user to docker group
+  user: name={{server_deploy_user_name}} groups=docker append=yes
+  notify:
+  - restart docker
+
