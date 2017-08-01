@@ -1,0 +1,16 @@
+---
+- name: unblock the needed ports
+  ufw: rule=allow port={{ item }} proto=tcp
+  with_items:
+  - 25
+  - 80
+  - 110
+  - 143
+  - 443
+  - 465
+  - 587
+  - 993
+  - 995
+  - 4190
+
+# Based on README at https://github.com/ksylvan/mailserver

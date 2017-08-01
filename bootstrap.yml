@@ -107,40 +107,11 @@
   - name: Setup ufw (with deny default now)
     ufw: state=enabled policy=deny
 
-  # Set up postfix for logwatch
-  #
-  - name: Set up Postfix to relay mail
-    debconf: name=postfix
-             question='{{ item.question }}'
-             value='{{ item.value }}'
-             vtype='{{ item.vtype }}'
-    with_items:
-      - { question: 'postfix/mailname', value: '{{ server_host_name }}', vtype: 'string' }
-      - { question: 'postfix/main_mailer_type', value: 'Internet Site', vtype: 'string' }
-
   - name: Email log summary daily
     lineinfile: dest=/etc/cron.daily/00logwatch
                 regexp="^/usr/sbin/logwatch"
                 line="/usr/sbin/logwatch --output mail --mailto {{ server_logwatch_email }} --detail high"
                 state=present create=yes
-
-  - name: New systemd unit to fix postfix /etc/resolv.conf
-    blockinfile:
-      path: /etc/systemd/system/fixpostfix.service
-      create: yes
-      block: |
-        [Unit]
-        Description=Fix poorly copied resolv.conf for postfix
-        Wants=network-online.target
-        After=network-online.target
-        [Service]
-        Type=oneshot
-        ExecStart=/bin/cp /etc/resolv.conf /var/spool/postfix/etc/resolv.conf
-        [Install]
-        WantedBy=multi-user.target
-
-  - name: Fix boot order problem for postfix
-    systemd: name=fixpostfix.service enabled=true
 
   # Root Password change
   #

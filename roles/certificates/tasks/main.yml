@@ -1,0 +1,17 @@
+---
+- name: Set up the mount path
+  file: path=/mnt/docker/nginx/certs state=directory recurse=yes
+
+- name: Generate certs
+  shell: >
+    docker run --rm -v /mnt/docker/nginx/certs:/etc/letsencrypt
+    -p 80:80 -p 443:443 kayvan/letsencrypt
+    certonly --standalone --rsa-key-size 4096 --agree-tos
+    -m {{ server_logwatch_email }}
+    -d mail.{{ server_host_name }}
+    -d webmail.{{ server_host_name }}
+    -d postfixadmin.{{ server_host_name }}
+    -d www.{{ server_host_name }}
+    -d {{ server_host_name }}
+  args:
+    creates: /mnt/docker/nginx/certs/live/mail.{{ server_host_name }}

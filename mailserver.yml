@@ -4,6 +4,5 @@
 
   roles:
   - docker
-
-  tasks:
-  - debug: msg="TODO"
+  - unblock-ports
+  - certificates
