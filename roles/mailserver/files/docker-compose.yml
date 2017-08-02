@@ -42,7 +42,7 @@ services:
     hostname: mail
     # restart: always
     environment:
-      - DBPASS={{ db_password }}
+      - DBPASS={{ user_password }}
     depends_on:
       - mailserver
       - mariadb
