@@ -3,7 +3,7 @@ services:
   mailserver:
     image: hardware/mailserver
     container_name: mailserver
-    domainname: domain.tld                # Mail server FQDN & reverse = mail.domain.tld.
+    domainname: {{ server_host_name }}     # Mail server FQDN & reverse = mail.domain.tld.
     hostname: mail
     # restart: always
     # extra_hosts:                        - Required for external database (on other server or for local database on host)
@@ -18,7 +18,7 @@ services:
     # - "995:995"   # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
       - "4190:4190" # SIEVE      STARTTLS - Optional - Recommended for mail filtering
     environment:
-      - DBPASS=xxxxxxx
+      - DBPASS={{ user_password }}
     # - ENABLE_POP3=true          # Enable POP3 protocol
     # - GREYLISTING=gross         # Enable gross greylisting policy server
     # - DISABLE_CLAMAV=true       # Disable virus scanning
@@ -27,7 +27,7 @@ services:
     volumes:
       - /mnt/docker/mail:/var/mail
       - /mnt/docker/mail/opendkim:/etc/opendkim/keys
-    # - /mnt/docker/nginx/certs:/etc/letsencrypt
+      - /mnt/docker/nginx/certs:/etc/letsencrypt
     depends_on:
       - mariadb
 
@@ -38,11 +38,11 @@ services:
   postfixadmin:
     image: hardware/postfixadmin
     container_name: postfixadmin
-    domainname: domain.tld
+    domainname: {{ server_host_name }}
     hostname: mail
     # restart: always
     environment:
-      - DBPASS=xxxxxxx
+      - DBPASS={{ db_password }}
     depends_on:
       - mailserver
       - mariadb
@@ -61,21 +61,21 @@ services:
       - mailserver
       - mariadb
 
-  # Authoritative DNS server (Optional)
-  # https://github.com/hardware/nsd-dnssec
-  # https://www.nlnetlabs.nl/projects/nsd/
-  # Configuration : https://github.com/hardware/mailserver/wiki/NSD-initial-configuration
-  nsd:
-    image: hardware/nsd-dnssec
-    container_name: nsd
-    # restart: always
-    ports:
-      - "53:53"
-      - "53:53/udp"
-    volumes:
-      - /mnt/docker/nsd/conf:/etc/nsd
-      - /mnt/docker/nsd/zones:/zones
-      - /mnt/docker/nsd/db:/var/db/nsd
+#  # Authoritative DNS server (Optional)
+#  # https://github.com/hardware/nsd-dnssec
+#  # https://www.nlnetlabs.nl/projects/nsd/
+#  # Configuration : https://github.com/hardware/mailserver/wiki/NSD-initial-configuration
+#  nsd:
+#    image: hardware/nsd-dnssec
+#    container_name: nsd
+#    # restart: always
+#    ports:
+#      - "53:53"
+#      - "53:53/udp"
+#    volumes:
+#      - /mnt/docker/nsd/conf:/etc/nsd
+#      - /mnt/docker/nsd/zones:/zones
+#      - /mnt/docker/nsd/db:/var/db/nsd
 
   # Web server
   # https://github.com/Wonderfall/dockerfiles/tree/master/nginx
@@ -106,9 +106,9 @@ services:
     # restart: always
     # Info : These variables are ignored when the volume already exists (databases created before).
     environment:
-      - MYSQL_ROOT_PASSWORD=xxxxxxx
+      - MYSQL_ROOT_PASSWORD={{ db_password }}
       - MYSQL_DATABASE=postfix
       - MYSQL_USER=postfix
-      - MYSQL_PASSWORD=xxxxxxx
+      - MYSQL_PASSWORD={{ user_password }}
     volumes:
       - /mnt/docker/mysql/db:/var/lib/mysql
