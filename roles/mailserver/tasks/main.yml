@@ -11,3 +11,25 @@
   template:
     src: files/docker-compose.yml
     dest: /home/{{ server_deploy_user_name }}/docker-compose.yml
+
+- name: New systemd unit to run docker-compose
+  template:
+    src: files/mailserver.service
+    dest: /etc/systemd/system/mailserver.service
+
+- name: Enable mailserver.service
+  systemd: name=mailserver.service enabled=true
+
+- name: nginx sites directory
+  file: path=/mnt/docker/nginx/sites-enabled state=directory recurse=yes
+
+- name: Enable sites
+  template:
+    src: files/{{ item }}.conf
+    dest: /mnt/docker/nginx/sites-enabled/{{ item }}.conf
+    owner: 991
+    group: 991
+  with_items:
+  - postfixadmin
+  - rainloop
+  - webserver
