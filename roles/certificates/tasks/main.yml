@@ -15,3 +15,14 @@
     -d {{ server_host_name }}
   args:
     creates: /mnt/docker/nginx/certs/live/mail.{{ server_host_name }}
+
+- name: Install certbot
+  blockinfile:
+    path: /usr/local/bin/certbot
+    create: yes
+    mode: 0755
+    block: |
+      #!/bin/sh
+      docker run --rm -it \
+        -v /mnt/docker/nginx/certs:/etc/letsencrypt \
+        kayvan/letsencrypt ${1+"$@"}
