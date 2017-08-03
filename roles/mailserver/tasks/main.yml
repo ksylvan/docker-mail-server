@@ -11,6 +11,8 @@
   template:
     src: files/docker-compose.yml
     dest: /home/{{ server_deploy_user_name }}/docker-compose.yml
+  notify:
+  - restart stack
 
 - name: New systemd unit to run docker-compose
   template:
@@ -21,7 +23,12 @@
   systemd: name=mailserver.service enabled=true
 
 - name: nginx sites directory
-  file: path=/mnt/docker/nginx/sites-enabled state=directory recurse=yes
+  file:
+    path: /mnt/docker/nginx/sites-enabled
+    state: directory
+    recurse: yes
+    owner: 991
+    group: 991
 
 - name: Enable sites
   template:
@@ -32,4 +39,34 @@
   with_items:
   - postfixadmin
   - rainloop
-  - webserver
+  - contact
+  notify:
+  - restart nginx
+
+- name: contact form config directory
+  file: path=/mnt/docker/contact state=directory recurse=yes
+
+- name: contact config file
+  template:
+    src: files/contact-config.php
+    dest: /mnt/docker/contact/config.php
+    owner: 991
+    group: 991
+  notify:
+  - restart contact
+  - restart nginx
+
+- name: rainloop plugin directory
+  file:
+    path: /mnt/docker/rainloop/_data_/_default_/plugins
+    state: directory
+    recurse: yes
+    owner: 991
+    group: 991
+
+- name: copy postfixadmin password change plugin into rainloop
+  file:
+    src: files/postfixadmin-change-password
+    dest: /mnt/docker/rainloop/_data_/_default_/plugins
+    owner: 991
+    group: 991

@@ -1,0 +1,18 @@
+---
+- name: restart nginx
+  shell: docker-compose restart nginx
+  args:
+    chdir: ~{{ server_deploy_user_name }}
+  become_user: "{{ server_deploy_user_name }}"
+
+- name: restart stack
+  shell: docker-compose restart
+  args:
+    chdir: ~{{ server_deploy_user_name }}
+  become_user: "{{ server_deploy_user_name }}"
+
+- name: restart contact
+  shell: docker-compose restart contact
+  args:
+    chdir: ~{{ server_deploy_user_name }}
+  become_user: "{{ server_deploy_user_name }}"

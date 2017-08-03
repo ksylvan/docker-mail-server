@@ -45,6 +45,15 @@ If you wish to edit your secrets, use the `edit` task, like this:
 
       $ make redo
 
+## Saving your settings
+
+After running the process the first time, you can do:
+
+      $ make save
+
+This will create a file `backup-YYYYMMDD-hhmm.tar.gz` which you can stash
+and will include your inventory file, variables and vault password.
+
 ## References
 
 - [Securing a Server with Ansible](https://ryaneschinger.com/blog/securing-a-server-with-ansible/)

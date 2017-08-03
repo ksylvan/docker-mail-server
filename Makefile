@@ -1,6 +1,6 @@
 # Makefile for mail server setup
 #
-.PHONY: all bootstrap mailserver rebootstrap reset clean edit redo
+.PHONY: all bootstrap mailserver rebootstrap reset clean edit redo save
 
 USER_VAR=server_deploy_user_name
 VAR_FILE=group_vars/all/vars.yml
@@ -33,10 +33,17 @@ rebootstrap:
 
 redo: rebootstrap all
 
+# GENERATED FILES
+GEN=inventory group_vars .vault_pass.txt
+
 # clean up and start over
 reset:
-	rm -rf inventory group_vars .vault_pass.txt
+	rm -rf ${GEN}
 	touch .vault_pass.txt; chmod 600 .vault_pass.txt
+
+# save the current set of variables and vault password
+save:
+	name=backup-`date +'%Y%m%d-%H%M'`.tar.gz; tar cvzf $$name ${GEN}
 
 # simple cleanup of ansible cruft
 clean:

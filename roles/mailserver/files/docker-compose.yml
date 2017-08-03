@@ -61,6 +61,17 @@ services:
       - mailserver
       - mariadb
 
+  # Contact Form (Optional)
+  # https://github.com/ksylvan/Simple-PHP-Contact-Form
+  contact:
+    image: kayvan/contact-form
+    container_name: contact
+    # restart: always
+    volumes:
+      - /mnt/docker/contact:/contact/config
+    depends_on:
+      - mailserver
+
 #  # Authoritative DNS server (Optional)
 #  # https://github.com/hardware/nsd-dnssec
 #  # https://www.nlnetlabs.nl/projects/nsd/
@@ -96,6 +107,7 @@ services:
     depends_on:
       - postfixadmin
       - rainloop
+      - contact
 
   # Database
   # https://github.com/docker-library/mariadb
