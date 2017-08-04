@@ -7,6 +7,10 @@ Ansible Playbooks for setting up a secured ssh mail and web server.
 Prerequisite: Recent version of [Ansible](http://docs.ansible.com) installed
 on your control host.
 
+Set up your host's domain name entries as documented here:
+https://github.com/hardware/mailserver (you can add the DKIM signature
+when the stack is up).
+
 - Create a recent Debian server, using whatever process you choose. I created
   an Debian 9 (Stretch) server in the cloud.
 
@@ -14,8 +18,14 @@ on your control host.
 
 - Reboot the installed server.
 
-The first time you run this, it will run `./bin/setup` and set your
-`./inventory` files and variable files in `./group_vars/all/`.
+Once your server is up, from your control host, do `ssh deploy@server.domain`
+so you can look at the generated secrets. e.g. to get the DKIM key to add
+to your DNS, do:
+
+      cat /mnt/docker/mail/opendkim/{your-domain-name}/mail.txt
+
+On your control host, the first time you run this, it will run `./bin/setup`
+and set your `./inventory` files and variable files in `./group_vars/all/`.
 
 Use `make reset` to remove these files and start over.
 
@@ -56,5 +66,6 @@ and will include your inventory file, variables and vault password.
 
 ## References
 
+- [Simple and full-featured mail server using Docker](https://github.com/hardware/mailserver)
 - [Securing a Server with Ansible](https://ryaneschinger.com/blog/securing-a-server-with-ansible/)
 - [Deploying a mail server with Ansible](https://workaround.org/ispmail/jessie/ansible)
