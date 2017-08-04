@@ -1,4 +1,4 @@
-# Bootstrap Ubuntu server with some common secure settings
+# Bootstrap debian server with some common secure settings
 ---
 - hosts: all
   gather_facts: false
@@ -148,6 +148,5 @@
     notify: Restart ssh
 
   handlers:
-
   - name: Restart ssh
     service: name=ssh state=restarted
