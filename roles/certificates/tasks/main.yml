@@ -7,14 +7,14 @@
     docker run --rm -v /mnt/docker/nginx/certs:/etc/letsencrypt
     -p 80:80 -p 443:443 kayvan/letsencrypt
     certonly --standalone --rsa-key-size 4096 --agree-tos
-    -m {{ server_logwatch_email }}
-    -d mail.{{ server_host_name }}
-    -d webmail.{{ server_host_name }}
-    -d postfixadmin.{{ server_host_name }}
-    -d www.{{ server_host_name }}
-    -d {{ server_host_name }}
+    -m {{ logwatch_email }}
+    -d mail.{{ domain_name }}
+    -d webmail.{{ domain_name }}
+    -d postfixadmin.{{ domain_name }}
+    -d www.{{ domain_name }}
+    -d {{ domain_name }}
   args:
-    creates: /mnt/docker/nginx/certs/live/mail.{{ server_host_name }}
+    creates: /mnt/docker/nginx/certs/live/mail.{{ domain_name }}
 
 - name: Install certbot
   blockinfile:
@@ -48,10 +48,10 @@
         $c certificates >> $msg 2>&1
       else
         if [ $DAYS -lt $LIMIT ]; then
-          cd /home/{{ server_deploy_user_name }}
-          su {{ server_deploy_user_name }} -c "docker-compose stop nginx" > $msg 2>&1
+          cd /home/{{ deploy_user_name }}
+          su {{ deploy_user_name }} -c "docker-compose stop nginx" > $msg 2>&1
           $c renew >> $msg 2>&1
-          su {{ server_deploy_user_name }} -c "docker-compose start nginx" >> $msg 2>&1
+          su {{ deploy_user_name }} -c "docker-compose start nginx" >> $msg 2>&1
           SUBJECT="Cert Renewal Attempt (Valid for $DAYS days)"
         else
           SUBJECT="Cert is still valid (for $DAYS days)"
@@ -59,7 +59,7 @@
         fi
       fi
       (cat << HEADERS
-      From: admin@{{ server_host_name }}
+      From: admin@{{ domain_name }}
       To: postmaster
       Subject: $SUBJECT
 

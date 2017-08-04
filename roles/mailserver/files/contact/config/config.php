@@ -5,8 +5,8 @@ return [
         'prefix' => '[Contact Form]'
     ],
     'emails' => [
-        'to'   => 'contact@{{ server_host_name }}',
-        'from' => 'postmaster@{{ server_host_name }}'
+        'to'   => 'contact@{{ domain_name }}',
+        'from' => 'postmaster@{{ domain_name }}'
     ],
     'messages' => [
         'error'   => 'There was an error sending, please try again later.',

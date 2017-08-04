@@ -3,23 +3,23 @@
 # e.g. https://www.random.org/passwords/
 #
 ---
-server_deploy_public_keys:
+deploy_public_keys:
   - ~/.ssh/id_rsa.pub
 
-server_required_packages:
+required_packages:
   - ufw
   - fail2ban
   - unattended-upgrades
   - ssmtp
   - logwatch
 
-server_optional_packages:
+optional_packages:
   - mosh
   - vim
 
-server_ssh_port: 22
-server_mosh_from_port: 60000
-server_mosh_to_port: 60010
+ssh_port: 22
+mosh_from_port: 60000
+mosh_to_port: 60010
 
-server_deploy_password: "{{ vault_deploy_encrypted_password }}"
-server_root_password: "{{ vault_root_encrypted_password }}"
+deploy_password: "{{ vault_deploy_encrypted_password }}"
+root_password: "{{ vault_root_encrypted_password }}"

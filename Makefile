@@ -2,7 +2,7 @@
 #
 .PHONY: all bootstrap mailserver rebootstrap reset clean edit redo save
 
-USER_VAR=server_deploy_user_name
+USER_VAR=deploy_user_name
 VAR_FILE=group_vars/all/vars.yml
 DEPLOY_USER=$(shell grep ${USER_VAR} ${VAR_FILE} >/dev/null 2>&1 | \
 	awk -F: '{print $$2}')
@@ -23,7 +23,7 @@ mailserver:
 	echo "Running playbook using ${DEPLOY_USER} user"; \
 	ansible-playbook -u ${DEPLOY_USER} mailserver.yml
 
-# bootstrap sets up a secure ubuntu server (the first time)
+# bootstrap sets up a secure debian server (the first time)
 bootstrap:
 	ansible-playbook -u root -k bootstrap.yml
 

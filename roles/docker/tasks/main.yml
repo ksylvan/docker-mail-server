@@ -45,7 +45,7 @@
   - restart docker
 
 - name: Add deploy user to docker group
-  user: name={{server_deploy_user_name}} groups=docker append=yes
+  user: name={{deploy_user_name}} groups=docker append=yes
   notify:
   - restart docker
 

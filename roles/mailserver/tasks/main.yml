@@ -10,7 +10,7 @@
 - name: Copy over docker-compose.yml
   template:
     src: files/docker-compose.yml
-    dest: /home/{{ server_deploy_user_name }}/docker-compose.yml
+    dest: /home/{{ deploy_user_name }}/docker-compose.yml
   notify:
   - restart stack
 

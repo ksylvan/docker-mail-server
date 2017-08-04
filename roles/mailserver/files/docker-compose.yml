@@ -3,7 +3,7 @@ services:
   mailserver:
     image: hardware/mailserver
     container_name: mailserver
-    domainname: {{ server_host_name }}     # Mail server FQDN & reverse = mail.domain.tld.
+    domainname: {{ domain_name }}     # Mail server FQDN & reverse = mail.domain.tld.
     hostname: mail
     # restart: always
     # extra_hosts:                        - Required for external database (on other server or for local database on host)
@@ -38,7 +38,7 @@ services:
   postfixadmin:
     image: hardware/postfixadmin
     container_name: postfixadmin
-    domainname: {{ server_host_name }}
+    domainname: {{ domain_name }}
     hostname: mail
     # restart: always
     environment:

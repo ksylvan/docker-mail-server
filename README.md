@@ -11,12 +11,29 @@ Set up your host's domain name entries as documented here:
 https://github.com/hardware/mailserver (you can add the DKIM signature
 when the stack is up).
 
+To start, you'll need to have the following set up in your DNS (`A.B.C.D`
+represents your IP address):
+
+| HOSTNAME | CLASS | TYPE | PRIORITY | VALUE |
+| -------- | ----- | ---- | -------- | ----- |
+| @ | IN | A/AAAA | any | A.B.C.D |
+| mail | IN | A/AAAA | any | A.B.C.D |
+| @ | IN | MX | 10 | mail.domain.tld. |
+| www | IN | CNAME | any | mail.domain.tld. |
+| postfixadmin | IN | CNAME | any | mail.domain.tld. |
+| webmail | IN | CNAME | any | mail.domain.tld. |
+
+
 - Create a recent Debian server, using whatever process you choose. I created
   an Debian 9 (Stretch) server in the cloud.
 
 - `make`
 
 - Reboot the installed server.
+
+- Add additional DNS records (for `SPF`, `DKIM`, and `DMARC`) as
+documented [here](https://github.com/hardware/mailserver) to increase
+your reputation score.
 
 Once your server is up, from your control host, do `ssh deploy@server.domain`
 so you can look at the generated secrets. e.g. to get the DKIM key to add

@@ -24,19 +24,19 @@
   #
   - name: Add deploy user
     user: >
-      name={{ server_deploy_user_name }}
-      password="{{ server_deploy_password }}" shell=/bin/bash
+      name={{ deploy_user_name }}
+      password="{{ deploy_password }}" shell=/bin/bash
 
   - name: Add authorized keys for deploy user
     authorized_key:
-      user: "{{ server_deploy_user_name }}"
+      user: "{{ deploy_user_name }}"
       key: "{{ lookup('file', item) }}"
-    with_items: "{{ server_deploy_public_keys }}"
+    with_items: "{{ deploy_public_keys }}"
 
   - name: Add deploy user to sudoers
     lineinfile:
-      dest: "/etc/sudoers.d/{{ server_deploy_user_name}}"
-      line: "{{ server_deploy_user_name }} ALL=(ALL) NOPASSWD: ALL"
+      dest: "/etc/sudoers.d/{{ deploy_user_name}}"
+      line: "{{ deploy_user_name }} ALL=(ALL) NOPASSWD: ALL"
       state: present
       create: yes
 
@@ -44,7 +44,7 @@
 # Especially important for when we shut the door on root ssh logins.
 #
 - hosts: all
-  remote_user: "{{ server_deploy_user_name }}"
+  remote_user: "{{ deploy_user_name }}"
   become: true
 
   tasks:
@@ -59,16 +59,16 @@
       replace:
         dest: /etc/hostname
         regexp: '\b(.*)\b'
-        replace: '{{ server_host_name }}'
-    - hostname: name="{{ server_host_name }}"
-    when: etc_hostname.stdout|trim() != server_host_name
+        replace: '{{ domain_name }}'
+    - hostname: name="{{ domain_name }}"
+    when: etc_hostname.stdout|trim() != domain_name
 
   - name: Fix /etc/hosts
     blockinfile:
       dest: /etc/hosts
       block: |
         {% for item in ansible_all_ipv4_addresses %}
-        {{ item }} {{ server_host_name }}
+        {{ item }} {{ domain_name }}
         {% endfor %}
       marker: "# {mark} ANSIBLE MANAGED"
 
@@ -84,11 +84,11 @@
 
   - name: Install required packages
     apt: state=installed pkg={{ item }}
-    with_items: "{{ server_required_packages }}"
+    with_items: "{{ required_packages }}"
 
   - name: Install optional packages
     apt: state=installed pkg={{ item }}
-    with_items: "{{ server_optional_packages }}"
+    with_items: "{{ optional_packages }}"
 
   - name: Adjust APT update intervals
     copy: src=files/apt_periodic dest=/etc/apt/apt.conf.d/10periodic
@@ -98,11 +98,11 @@
   - service: name=ufw state=started
 
   - name: Allow ssh traffic
-    ufw: rule=allow port={{ server_ssh_port }} proto=tcp
+    ufw: rule=allow port={{ ssh_port }} proto=tcp
 
   - name: Allow mosh traffic
-    ufw: rule=allow proto=udp port={{ server_mosh_from_port }}:{{ server_mosh_to_port }}
-    when: "'mosh' in server_optional_packages"
+    ufw: rule=allow proto=udp port={{ mosh_from_port }}:{{ mosh_to_port }}
+    when: "'mosh' in optional_packages"
 
   - name: Setup ufw (with deny default now)
     ufw: state=enabled policy=deny
@@ -110,26 +110,26 @@
   - name: Email log summary daily
     lineinfile: dest=/etc/cron.daily/00logwatch
                 regexp="^/usr/sbin/logwatch"
-                line="/usr/sbin/logwatch --output mail --mailto {{ server_logwatch_email }} --detail high"
+                line="/usr/sbin/logwatch --output mail --mailto {{ logwatch_email }} --detail high"
                 state=present create=yes
 
   - name: Fix mailhub in ssmtp config
     lineinfile: dest=/etc/ssmtp/ssmtp.conf
                 regexp="^mailhub="
-                line="mailhub={{ server_host_name }}"
+                line="mailhub={{ domain_name }}"
                 state=present create=yes
 
   # Root Password change
   #
   - name: Change root password
-    user: name=root password="{{ server_root_password }}"
+    user: name=root password="{{ root_password }}"
 
   # Lock down SSH
   #
   - name: Change ssh port
     lineinfile: dest=/etc/ssh/sshd_config
                 regexp="^Port\s"
-                line="Port {{ server_ssh_port }}"
+                line="Port {{ ssh_port }}"
                 state=present
     notify: Restart ssh
 

@@ -19,23 +19,23 @@ prompt_with_default()
   eval "$2=\${ans:-\$$2}"
 }
 
-server_host_name=example.domain.com
-prompt_with_default "host name (top level domain name)" server_host_name
+domain_name=domain.com
+prompt_with_default "Top level domain name " domain_name
 
-echo ${server_host_name} > inventory
+echo ${domain_name} > inventory
 
 vault_root_password=MyR00tPa33w0rd
 prompt_with_default "root password" vault_root_password
 
-server_deploy_user_name=deploy
-prompt_with_default "deploy user name" server_deploy_user_name
+deploy_user_name=deploy
+prompt_with_default "deploy user name" deploy_user_name
 vault_deploy_password=MyD3pl0yPas3w0rd
 prompt_with_default "deploy user password" vault_deploy_password
 
-server_logwatch_email=postmaster@${server_host_name}
-prompt_with_default "logwatch reports email" server_logwatch_email
+logwatch_email=postmaster@${domain_name}
+prompt_with_default "logwatch reports email" logwatch_email
 
-for i in server_host_name server_deploy_user_name server_logwatch_email
+for i in domain_name deploy_user_name logwatch_email
 do
   echo "$i: $(eval echo \$$i)" >> $VARS
 done

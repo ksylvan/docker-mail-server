@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?><!DOCTYPE html>
 <html>
 <head>
-    <title>{{ server_host_name }} Contact Form</title>
+    <title>{{ domain_name }} Contact Form</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="jumbotron">
         <div class="container">
-            <h1>{{ server_host_name }} Contact Form</h1>
+            <h1>{{ domain_name }} Contact Form</h1>
             <p>Please fill out the form below.</p>
         </div>
     </div>
