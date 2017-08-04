@@ -70,6 +70,7 @@ services:
     volumes:
       - /mnt/docker/contact/config:/contact/config
       - /mnt/docker/contact/ssmtp:/etc/ssmtp
+      - /mnt/docker/contact/index.php:/contact/index.php
     depends_on:
       - mailserver
 

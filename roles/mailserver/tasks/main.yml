@@ -76,6 +76,7 @@
   with_items:
   - config/config.php
   - ssmtp/ssmtp.conf
+  - index.php
   notify:
   - restart contact
   - restart nginx
