@@ -23,6 +23,52 @@
     mode: 0755
     block: |
       #!/bin/sh
-      docker run --rm -it \
+      docker run --rm -i \
         -v /mnt/docker/nginx/certs:/etc/letsencrypt \
         kayvan/letsencrypt ${1+"$@"}
+
+- name: Renew script
+  blockinfile:
+    path: /usr/local/bin/renew
+    create: yes
+    mode: 0755
+    block: |
+      #!/bin/sh
+      c=/usr/local/bin/certbot
+
+      LIMIT=5
+      DAYS=$($c certificates 2>/dev/null |
+        grep VALID: | sed 's/.*VALID: \([^ ]*\) .*/\1/')
+
+      msg=/tmp/msg$$; trap "rm -f $msg" EXIT
+      if [ -z "$DAYS" ]
+      then
+        SUBJECT="Cert Renewal ERROR: Could not parse EXPIRY"
+        echo "$c returned:" > $msg
+        $c certificates >> $msg 2>&1
+      else
+        if [ $DAYS -lt $LIMIT ]; then
+          cd /home/{{ server_deploy_user_name }}
+          su {{ server_deploy_user_name }} -c "docker-compose stop nginx" > $msg 2>&1
+          $c renew >> $msg 2>&1
+          su {{ server_deploy_user_name }} -c "docker-compose start nginx" >> $msg 2>&1
+          SUBJECT="Cert Renewal Attempt (Valid for $DAYS days)"
+        else
+          SUBJECT="Cert is still valid (for $DAYS days)"
+          $c certificates > $msg 2>&1
+        fi
+      fi
+      (cat << HEADERS
+      From: admin@{{ server_host_name }}
+      To: postmaster
+      Subject: $SUBJECT
+
+      HEADERS
+      cat $msg)| /usr/sbin/sendmail -i -t
+
+- name: Set up renewal cron job
+  cron:
+    name: "renew letsencrypt"
+    hour: 2
+    minute: 19
+    job: "/usr/local/bin/renew"
