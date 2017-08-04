@@ -16,11 +16,24 @@
 
 - name: New systemd unit to run docker-compose
   template:
-    src: files/mailserver.service
+    src: files/mailserver/mailserver.service
     dest: /etc/systemd/system/mailserver.service
 
 - name: Enable mailserver.service
   systemd: name=mailserver.service enabled=true
+
+- name: postfix config directory
+  file:
+    path: /mnt/docker/mail/postfix
+    state: directory
+    recurse: yes
+
+- name: postfix config override
+  copy:
+    src: files/mailserver/custom.conf
+    dest: /mnt/docker/mail/postfix/custom.conf
+  notify:
+  - restart mailserver
 
 - name: nginx sites directory
   file:
@@ -32,7 +45,7 @@
 
 - name: Enable sites
   template:
-    src: files/{{ item }}.conf
+    src: files/nginx/{{ item }}.conf
     dest: /mnt/docker/nginx/sites-enabled/{{ item }}.conf
     owner: 991
     group: 991
@@ -44,14 +57,25 @@
   - restart nginx
 
 - name: contact form config directory
-  file: path=/mnt/docker/contact state=directory recurse=yes
-
-- name: contact config file
-  template:
-    src: files/contact-config.php
-    dest: /mnt/docker/contact/config.php
+  file:
+    path: /mnt/docker/contact/{{ item }}
+    state: directory
+    recurse: yes
     owner: 991
     group: 991
+  with_items:
+  - config
+  - ssmtp
+
+- name: contact config files
+  template:
+    src: files/contact/{{ item }}
+    dest: /mnt/docker/contact/{{ item }}
+    owner: 991
+    group: 991
+  with_items:
+  - config/config.php
+  - ssmtp/ssmtp.conf
   notify:
   - restart contact
   - restart nginx
@@ -65,8 +89,8 @@
     group: 991
 
 - name: copy postfixadmin password change plugin into rainloop
-  file:
-    src: files/postfixadmin-change-password
+  copy:
+    src: files/rainloop/postfixadmin-change-password
     dest: /mnt/docker/rainloop/_data_/_default_/plugins
     owner: 991
     group: 991

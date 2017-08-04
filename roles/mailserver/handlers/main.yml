@@ -16,3 +16,9 @@
   args:
     chdir: ~{{ server_deploy_user_name }}
   become_user: "{{ server_deploy_user_name }}"
+
+- name: restart mailserver
+  shell: docker-compose restart mailserver
+  args:
+    chdir: ~{{ server_deploy_user_name }}
+  become_user: "{{ server_deploy_user_name }}"

@@ -68,7 +68,8 @@ services:
     container_name: contact
     # restart: always
     volumes:
-      - /mnt/docker/contact:/contact/config
+      - /mnt/docker/contact/config:/contact/config
+      - /mnt/docker/contact/ssmtp:/etc/ssmtp
     depends_on:
       - mailserver
 

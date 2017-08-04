@@ -113,6 +113,12 @@
                 line="/usr/sbin/logwatch --output mail --mailto {{ server_logwatch_email }} --detail high"
                 state=present create=yes
 
+  - name: Fix mailhub in ssmtp config
+    lineinfile: dest=/etc/ssmtp/ssmtp.conf
+                regexp="^mailhub="
+                line="mailhub={{ server_host_name }}"
+                state=present create=yes
+
   # Root Password change
   #
   - name: Change root password

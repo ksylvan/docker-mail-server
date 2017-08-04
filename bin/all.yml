@@ -10,6 +10,7 @@ server_required_packages:
   - ufw
   - fail2ban
   - unattended-upgrades
+  - ssmtp
   - logwatch
 
 server_optional_packages:
