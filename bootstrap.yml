@@ -147,6 +147,13 @@
                 state=present
     notify: Restart ssh
 
+  - name: Fix server timezone
+    timezone: name={{ timezone }}
+    notify:
+    - Restart cron
+
   handlers:
   - name: Restart ssh
     service: name=ssh state=restarted
+  - name: Restart cron
+    service: name=cron state=restarted
