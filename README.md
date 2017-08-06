@@ -49,9 +49,11 @@ Use `make reset` to remove these files and start over.
 You can also `make redo` if you make changes to your
 base variables and want to push those changes to your server.
 
-If you want to make changes to your secrets (e.g. add/remove users or change
-passwords), use `make edit`. This task decrypts and re-encrypts your secrets
+If you want to make changes to your secrets (e.g. change passwords),
+use `make edit_secrets`. This task decrypts and re-encrypts your secrets
 using `ansible-vault`.
+
+Run `make help` for a quick explanation of the `Makefile` tasks.
 
 ## User password hashes
 

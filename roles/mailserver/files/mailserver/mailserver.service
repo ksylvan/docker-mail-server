@@ -4,6 +4,6 @@ Wants=network-online.target
 After=network-online.target
 [Service]
 Type=oneshot
-ExecStart=/bin/su {{ deploy_user_name }} -c "/usr/bin/docker-compose -f /home/{{ deploy_user_name }}/docker-compose.yml up -d"
+ExecStart=/bin/su {{ deploy_user_name }} -c "/usr/local/bin/docker-compose -f /home/{{ deploy_user_name }}/docker-compose.yml up -d"
 [Install]
 WantedBy=multi-user.target

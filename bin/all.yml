@@ -21,5 +21,15 @@ ssh_port: 22
 mosh_from_port: 60000
 mosh_to_port: 60010
 
+# user passwords on the server
+#
 deploy_password: "{{ vault_deploy_encrypted_password }}"
 root_password: "{{ vault_root_encrypted_password }}"
+
+# database passwords.
+#
+db_password: "{{ vault_db_password }}"
+user_password: "{{ vault_user_password }}"
+#
+# USER SETTINGS. CHANGES ABOVE THIS LINE NOT RECOMMENDED.
+#

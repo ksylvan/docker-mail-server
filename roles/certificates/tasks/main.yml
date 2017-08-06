@@ -17,54 +17,16 @@
     creates: /mnt/docker/nginx/certs/live/mail.{{ domain_name }}
 
 - name: Install certbot
-  blockinfile:
-    path: /usr/local/bin/certbot
-    create: yes
+  copy:
+    src: files/certbot
+    dest: /usr/local/bin/certbot
     mode: 0755
-    block: |
-      #!/bin/sh
-      docker run --rm -i \
-        -v /mnt/docker/nginx/certs:/etc/letsencrypt \
-        kayvan/letsencrypt ${1+"$@"}
 
 - name: Renew script
-  blockinfile:
-    path: /usr/local/bin/renew
-    create: yes
+  template:
+    src: files/renew
+    dest: /usr/local/bin/renew
     mode: 0755
-    block: |
-      #!/bin/sh
-      c=/usr/local/bin/certbot
-
-      LIMIT=5
-      DAYS=$($c certificates 2>/dev/null |
-        grep VALID: | sed 's/.*VALID: \([^ ]*\) .*/\1/')
-
-      msg=/tmp/msg$$; trap "rm -f $msg" EXIT
-      if [ -z "$DAYS" ]
-      then
-        SUBJECT="Cert Renewal ERROR: Could not parse EXPIRY"
-        echo "$c returned:" > $msg
-        $c certificates >> $msg 2>&1
-      else
-        if [ $DAYS -lt $LIMIT ]; then
-          cd /home/{{ deploy_user_name }}
-          su {{ deploy_user_name }} -c "docker-compose stop nginx" > $msg 2>&1
-          $c renew >> $msg 2>&1
-          su {{ deploy_user_name }} -c "docker-compose start nginx" >> $msg 2>&1
-          SUBJECT="Cert Renewal Attempt (Valid for $DAYS days)"
-        else
-          SUBJECT="Cert is still valid (for $DAYS days)"
-          $c certificates > $msg 2>&1
-        fi
-      fi
-      (cat << HEADERS
-      From: admin@{{ domain_name }}
-      To: postmaster
-      Subject: $SUBJECT
-
-      HEADERS
-      cat $msg)| /usr/sbin/sendmail -i -t
 
 - name: Set up renewal cron job
   cron:

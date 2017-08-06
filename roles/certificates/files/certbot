@@ -1,0 +1,4 @@
+#!/bin/sh
+docker run --rm -i \
+  -v /mnt/docker/nginx/certs:/etc/letsencrypt \
+  kayvan/letsencrypt ${1+"$@"}

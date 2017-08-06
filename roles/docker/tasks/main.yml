@@ -1,11 +1,12 @@
 ---
 # Based on https://docs.docker.com/engine/installation/linux/docker-ce/debian/
-- name: remove any old docker versions
+- name: remove any old docker versions (and docker-compose binary)
   apt: name={{item}} state=absent purge=yes
   with_items:
   - docker
   - docker-engine
   - docker.io
+  - docker-compose
 
 - name: allow apt to use a repository over HTTPS
   apt: name={{item}} state=installed update_cache=yes
@@ -37,7 +38,6 @@
   apt: name={{item}} state=installed update_cache=yes
   with_items:
   - docker-ce
-  - docker-compose
 
 - name: docker group
   group: name=docker state=present
@@ -49,3 +49,9 @@
   notify:
   - restart docker
 
+# docker-compose shell script
+- name: Install docker-compose as shell script
+  get_url:
+    url: https://github.com/docker/compose/releases/download/1.15.0/run.sh
+    dest: /usr/local/bin/docker-compose
+    mode: 0755
