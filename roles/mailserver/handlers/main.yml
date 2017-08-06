@@ -1,24 +1,24 @@
 ---
 - name: restart nginx
-  shell: docker-compose restart nginx
+  shell: docker-compose stop nginx; docker-compose up -d nginx
   args:
     chdir: ~{{ deploy_user_name }}
   become_user: "{{ deploy_user_name }}"
 
 - name: restart stack
-  shell: docker-compose restart
+  shell: docker-compose stop; docker-compose up -d
   args:
     chdir: ~{{ deploy_user_name }}
   become_user: "{{ deploy_user_name }}"
 
 - name: restart contact
-  shell: docker-compose restart contact
+  shell: docker-compose stop contact; docker-compose up -d contact
   args:
     chdir: ~{{ deploy_user_name }}
   become_user: "{{ deploy_user_name }}"
 
 - name: restart mailserver
-  shell: docker-compose restart mailserver
+  shell: docker-compose stop mailserver; docker-compose up -d mailserver
   args:
     chdir: ~{{ deploy_user_name }}
   become_user: "{{ deploy_user_name }}"
