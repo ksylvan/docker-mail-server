@@ -36,7 +36,7 @@ help:
 	@echo "help - print this message."
 
 mailserver:
-	echo "Running playbook using ${DEPLOY_USER} user"; \
+	@echo "Running playbooks using ${DEPLOY_USER} user"
 	ansible-playbook -u ${DEPLOY_USER} mailserver.yml
 
 # bootstrap sets up a secure debian server (the first time)

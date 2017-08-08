@@ -14,6 +14,13 @@
   notify:
   - restart stack
 
+- name: Is nginx running?
+  shell: "(docker ps | grep nginx) || true"
+  register: tmp
+  changed_when: false
+- set_fact:
+    nginx_is_running: "{{ tmp.stdout_lines|length() > 0 }}"
+
 - name: New systemd unit to run docker-compose
   template:
     src: files/mailserver/mailserver.service
@@ -95,3 +102,10 @@
     dest: /mnt/docker/rainloop/_data_/_default_/plugins
     owner: 991
     group: 991
+
+# Runs as root, not the deploy user this time.
+- name: Start stack if needed
+  shell: docker-compose up -d
+  args:
+    chdir: ~{{ deploy_user_name }}
+  when: not nginx_is_running

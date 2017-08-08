@@ -6,4 +6,9 @@
   - docker
   - unblock-ports
   - certificates
+
+- hosts: all
+  become: true
+
+  roles:
   - mailserver

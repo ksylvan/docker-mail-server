@@ -4,21 +4,25 @@
   args:
     chdir: ~{{ deploy_user_name }}
   become_user: "{{ deploy_user_name }}"
+  when: nginx_is_running
 
 - name: restart stack
   shell: docker-compose stop; docker-compose up -d
   args:
     chdir: ~{{ deploy_user_name }}
   become_user: "{{ deploy_user_name }}"
+  when: nginx_is_running
 
 - name: restart contact
   shell: docker-compose stop contact; docker-compose up -d contact
   args:
     chdir: ~{{ deploy_user_name }}
   become_user: "{{ deploy_user_name }}"
+  when: nginx_is_running
 
 - name: restart mailserver
   shell: docker-compose stop mailserver; docker-compose up -d mailserver
   args:
     chdir: ~{{ deploy_user_name }}
   become_user: "{{ deploy_user_name }}"
+  when: nginx_is_running
