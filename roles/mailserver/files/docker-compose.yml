@@ -62,7 +62,7 @@ services:
       - mariadb
 
   # Contact Form (Optional)
-  # https://github.com/ksylvan/Simple-PHP-Contact-Form
+  # https://github.com/ksylvan/Simple-PHP-Contact-Form
   contact:
     image: kayvan/contact-form
     container_name: contact
@@ -106,6 +106,7 @@ services:
       - /mnt/docker/nginx/conf:/conf.d
       - /mnt/docker/nginx/log:/var/log/nginx
       - /mnt/docker/nginx/certs:/certs
+      - /mnt/docker/www:/www
     depends_on:
       - postfixadmin
       - rainloop

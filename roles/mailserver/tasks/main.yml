@@ -59,9 +59,77 @@
   with_items:
   - postfixadmin
   - rainloop
-  - contact
   notify:
   - restart nginx
+
+- name: Web files here?
+  local_action: shell ls www/{{ domain_name }} 2>/dev/null || true
+  register: www_dir
+  changed_when: false
+- set_fact:
+    website_setup: "{{ www_dir.stdout_lines|length() > 0 }}"
+
+- name: Set up www site as Contact form.
+  template:
+    src: files/nginx/www-contact.conf
+    dest: /mnt/docker/nginx/sites-enabled/www.conf
+    owner: 991
+    group: 991
+  notify:
+  - restart nginx
+  when: not website_setup
+
+- name: Set up www site with files.
+  block:
+  # now create dirs under /mnt/docker/www
+  - file:
+      path: /mnt/docker/www/{{ item.path }}
+      state: directory
+      recurse: yes
+      owner: 991
+      group: 991
+    with_filetree: www/{{ domain_name}}
+    when: item.state == 'directory'
+
+  # list of non-pdf files
+  - local_action:
+      module: shell find . -type f | grep -v '\.pdf$'
+      args:
+        chdir: www/{{ domain_name }}
+    register: web_text_files
+    changed_when: false
+  - local_action:
+      module: shell find . -type f -name '*.pdf'
+      args:
+        chdir: www/{{ domain_name }}
+    register: web_pdf_files
+    changed_when: false
+
+  # now create files with template
+  - template:
+      src: www/{{ domain_name }}/{{ item }}
+      dest: /mnt/docker/www/{{ item }}
+      owner: 991
+      group: 991
+    with_items: "{{ web_text_files.stdout_lines }}"
+
+  # Copy the pdf files
+  - copy:
+      src: www/{{ domain_name }}/{{ item }}
+      dest: /mnt/docker/www/{{ item }}
+      owner: 991
+      group: 991
+    with_items: "{{ web_pdf_files.stdout_lines }}"
+
+  # Now for the website nginx config
+  - template:
+      src: files/nginx/www-files.conf
+      dest: /mnt/docker/nginx/sites-enabled/www.conf
+      owner: 991
+      group: 991
+    notify:
+    - restart nginx
+  when: website_setup
 
 - name: contact form config directory
   file:

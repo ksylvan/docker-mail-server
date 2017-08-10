@@ -55,6 +55,24 @@ using `ansible-vault`.
 
 Run `make help` for a quick explanation of the `Makefile` tasks.
 
+## Web Site files
+
+The site at `www.yourdomain.tld` simply directs to the `contact` app
+which renders a simple Contact Form as the front page of your your domain.
+
+If you place files in `www/yourdomain.tld/`, the Ansible playbook will
+create an alterate setup:
+
+* /contact will refer to the Contact form served by the PHP container.
+* / will refer to what you place in `www/yourdomain.tld/files/`
+* /~user will refer to what you place in `www/yourdomain.tld/people/user/`
+
+Note that files placed in `www/` are ignored by git and will have
+to be backed up.
+
+TODO: Use local_action to create list of www/ dirs and files and create/copy
+them onto the remote server.
+
 ## User password hashes
 
 Refer to the [Ansible docs regarding user passwords](http://docs.ansible.com/ansible/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module)
