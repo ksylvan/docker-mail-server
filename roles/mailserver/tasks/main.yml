@@ -79,6 +79,10 @@
   - restart nginx
   when: not website_setup
 
+# For the contact form POST action
+- set_fact:
+    contact_form_postfix: ""
+
 - name: Set up www site with files.
   block:
   # now create dirs under /mnt/docker/www
@@ -129,6 +133,9 @@
       group: 991
     notify:
     - restart nginx
+  # In this configuration, the contact POST action needs to go to /contact.
+  - set_fact:
+      contact_form_postfix: "contact"
   when: website_setup
 
 - name: contact form config directory
