@@ -1,0 +1,23 @@
+---
+# Packages
+#
+- name: Ensure aptitude is installed
+  apt: name=aptitude state=present
+
+- name: Update APT Package cache
+  apt: update_cache=yes cache_valid_time=3600
+  changed_when: false
+
+- name: Upgrade APT to the latest packages
+  apt: upgrade=safe
+
+- name: Install required packages (Debian)
+  apt: state=installed pkg={{ item }}
+  with_items: "{{ required_packages }}"
+
+- name: Install optional packages (Debian)
+  apt: state=installed pkg={{ item }}
+  with_items: "{{ optional_packages }}"
+
+- name: Adjust APT update intervals
+  copy: src=files/apt_periodic dest=/etc/apt/apt.conf.d/10periodic

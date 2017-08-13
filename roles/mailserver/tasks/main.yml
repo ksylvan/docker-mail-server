@@ -6,6 +6,7 @@
   - exim4-base
   - exim4-config
   - exim4-daemon-light
+  when: ansible_os_family == "Debian"
 
 - name: Copy over docker-compose.yml
   template:
@@ -180,7 +181,7 @@
 
 # Runs as root, not the deploy user this time.
 - name: Start stack if needed
-  shell: docker-compose up -d
+  shell: /usr/local/bin/docker-compose up -d
   args:
     chdir: ~{{ deploy_user_name }}
   when: not nginx_is_running

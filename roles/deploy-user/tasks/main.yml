@@ -1,0 +1,20 @@
+# Deploy User setup
+#
+---
+- name: Add deploy user
+  user: >
+    name={{ deploy_user_name }}
+    password="{{ deploy_password }}" shell=/bin/bash
+
+- name: Add authorized keys for deploy user
+  authorized_key:
+    user: "{{ deploy_user_name }}"
+    key: "{{ lookup('file', item) }}"
+  with_items: "{{ deploy_public_keys }}"
+
+- name: Add deploy user to sudoers
+  lineinfile:
+    dest: "/etc/sudoers.d/{{ deploy_user_name}}"
+    line: "{{ deploy_user_name }} ALL=(ALL) NOPASSWD: ALL"
+    state: present
+    create: yes

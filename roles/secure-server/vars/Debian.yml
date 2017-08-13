@@ -1,0 +1,13 @@
+---
+required_packages:
+  - ufw
+  - fail2ban
+  - unattended-upgrades
+  - ssmtp
+  - logwatch
+
+optional_packages:
+  - mosh
+  - vim
+
+ssh_service_name: ssh

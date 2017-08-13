@@ -1,0 +1,5 @@
+# Common variables not OS-dependant
+---
+ssh_port: 22
+mosh_from_port: 60000
+mosh_to_port: 60010

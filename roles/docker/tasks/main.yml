@@ -1,38 +1,9 @@
 ---
-# Based on https://docs.docker.com/engine/installation/linux/docker-ce/debian/
-- name: remove any old docker versions (and docker-compose binary)
-  apt: name={{item}} state=absent purge=yes
-  with_items:
-  - docker
-  - docker-engine
-  - docker.io
-  - docker-compose
+# Install tasks for each OS family
+- include: "{{ ansible_os_family }}.yml"
 
-- name: allow apt to use a repository over HTTPS
-  apt: name={{item}} state=installed update_cache=yes
-  with_items:
-  - apt-transport-https
-  - ca-certificates
-  - curl
-  - gnupg2
-  - software-properties-common
-
-- name: Add Docker GPG key
-  apt_key:
-    url: 'https://download.docker.com/linux/debian/gpg'
-    state: present
-
-- name: Add docker repo
-  apt_repository:
-    repo: >
-      deb [arch=amd64] https://download.docker.com/linux/debian
-      {{ ansible_lsb.codename }} stable
-    state: present
-
-- name: Install docker-ce
-  apt: name={{item}} state=installed update_cache=yes
-  with_items:
-  - docker-ce
+- name: Enable docker service
+  service: name=docker enabled=yes
 
 - name: docker group
   group: name=docker state=present

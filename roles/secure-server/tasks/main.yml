@@ -1,0 +1,92 @@
+---
+- include_vars: vars/Common.yml
+- include_vars: vars/{{ ansible_os_family }}.yml
+
+# Install packages
+- include: "{{ ansible_os_family }}.yml"
+
+# Fixing the hostname
+#
+- command: cat /etc/hostname
+  register: etc_hostname
+  changed_when: false
+
+- block:
+  - name: Set hostname
+    replace:
+      dest: /etc/hostname
+      regexp: '\b(.*)\b'
+      replace: '{{ domain_name }}'
+  - hostname: name="{{ domain_name }}"
+  when: etc_hostname.stdout|trim() != domain_name
+
+- name: Fix /etc/hosts
+  blockinfile:
+    dest: /etc/hosts
+    block: |
+      {% for item in ansible_all_ipv4_addresses %}
+      {{ item }} {{ domain_name }}
+      {% endfor %}
+    marker: "# {mark} ANSIBLE MANAGED"
+
+# Configure firewall
+#
+- service: name=ufw state=started
+
+- name: Allow ssh traffic
+  ufw: rule=allow port={{ ssh_port }} proto=tcp
+
+- name: Allow mosh traffic
+  ufw: rule=allow proto=udp port={{ mosh_from_port }}:{{ mosh_to_port }}
+  when: "'mosh' in optional_packages"
+
+- name: Setup ufw (with deny default now)
+  ufw: state=enabled policy=deny
+
+- name: ensure ufw service is enabled
+  service: name=ufw enabled=yes
+
+- name: Email log summary daily
+  lineinfile: dest=/etc/cron.daily/00logwatch
+              regexp="^/usr/sbin/logwatch"
+              line="/usr/sbin/logwatch --output mail --mailto {{ admin_email }} --detail high"
+              state=present create=yes
+
+- name: Fix mailhub in ssmtp config
+  lineinfile: dest=/etc/ssmtp/ssmtp.conf
+              regexp="^mailhub="
+              line="mailhub={{ domain_name }}"
+              state=present create=yes
+
+# Root Password change
+#
+- name: Change root password
+  user: name=root password="{{ root_password }}"
+
+# Lock down SSH
+#
+- name: Change ssh port
+  lineinfile: dest=/etc/ssh/sshd_config
+              regexp="^Port\s"
+              line="Port {{ ssh_port }}"
+              state=present
+  notify: Restart ssh
+
+- name: Disallow password authentication
+  lineinfile: dest=/etc/ssh/sshd_config
+              regexp="^PasswordAuthentication"
+              line="PasswordAuthentication no"
+              state=present
+  notify: Restart ssh
+
+- name: Disallow root SSH access
+  lineinfile: dest=/etc/ssh/sshd_config
+              regexp="^PermitRootLogin"
+              line="PermitRootLogin no"
+              state=present
+  notify: Restart ssh
+
+- name: Fix server timezone
+  timezone: name={{ timezone }}
+  notify:
+  - Restart cron

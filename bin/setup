@@ -35,8 +35,8 @@ prompt_with_default "deploy user name" deploy_user_name
 vault_deploy_password=MyD3pl0yPas3w0rd
 prompt_with_default "deploy user password" vault_deploy_password
 
-logwatch_email=postmaster@${domain_name}
-prompt_with_default "logwatch reports email" logwatch_email
+admin_email=postmaster@${domain_name}
+prompt_with_default "Admin reports email (for logwatch, etc.)" admin_email
 
 vault_db_password=myDBpa88w0rd
 prompt_with_default "MariaDB root user password " vault_db_password
@@ -49,7 +49,7 @@ echo "NOTE: When DB is initialized, database passwords are set."
 echo "If you need to change them, you'll need to connect to DB."
 echo ""
 
-for i in domain_name deploy_user_name logwatch_email timezone
+for i in domain_name deploy_user_name admin_email timezone
 do
   echo "$i: $(eval echo \$$i)" >> $VARS
 done

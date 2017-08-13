@@ -1,0 +1,22 @@
+---
+# https://docs.docker.com/engine/installation/linux/docker-ce/fedora/
+- name: remove any old docker versions (and docker-compose binary)
+  dnf: name={{item}} state=absent
+  with_items:
+  - docker
+  - docker-common
+  - docker-selinux
+  - docker-engine-selinux
+  - docker-engine
+  - docker-compose
+
+- name: Add Fedora Docker-CE repo (and enable testing)
+  shell: |
+    dnf config-manager \
+    --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+    dnf config-manager --set-enabled docker-ce-test
+  args:
+    creates: /etc/yum.repos.d/docker-ce.repo
+
+- name: Install Docker CE
+  dnf: name=docker-ce state=present

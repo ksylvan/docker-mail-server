@@ -23,37 +23,74 @@ represents your IP address):
 | postfixadmin | IN | CNAME | any | mail.domain.tld. |
 | webmail | IN | CNAME | any | mail.domain.tld. |
 
-
-- Create a recent Debian server, using whatever process you choose. I created
-  an Debian 9 (Stretch) server in the cloud.
+- Create a recent Debian or Fedora server, using whatever process you choose.
+  I created a Debian 9 (Stretch) server in the cloud. Also tested with
+  a Fedora 26 Server instance.
 
 - `make`
 
 - Reboot the installed server.
 
 - Add additional DNS records (for `SPF`, `DKIM`, and `DMARC`) as
-documented [here](https://github.com/hardware/mailserver) to increase
-your reputation score.
+  documented [here](https://github.com/hardware/mailserver) to increase
+  your reputation score.
 
 Once your server is up, from your control host, do `ssh deploy@server.domain`
 so you can look at the generated secrets. e.g. to get the DKIM key to add
 to your DNS, do:
 
+      ssh deploy@server.domain
       cat /mnt/docker/mail/opendkim/{your-domain-name}/mail.txt
 
-On your control host, the first time you run this, it will run `./bin/setup`
-and set your `./inventory` files and variable files in `./group_vars/all/`.
+- At this point, visit your `postfixadmin` setup script and follow the
+  instructions here: https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
 
-Use `make reset` to remove these files and start over.
+- Using `postfixadmin`, set up email mailboxes for `admin` and `contact` and
+  set up aliases for the following:
 
-You can also `make redo` if you make changes to your
-base variables and want to push those changes to your server.
+| ALIAS | MAILBOX |
+| -------- | ----- |
+| abuse | admin@yourdomain.tld |
+| hostmaster | admin@yourdomain.tld |
+| noc | admin@yourdomain.tld |
+| postmaster | admin@yourdomain.tld |
+| spam | admin@yourdomain.tld |
+| sales | contact@yourdomain.tld |
+| webform | contact@yourdomain.tld |
 
-If you want to make changes to your secrets (e.g. change passwords),
-use `make edit_secrets`. This task decrypts and re-encrypts your secrets
-using `ansible-vault`.
+- Set up your Rainloop (webmail) configuration. Follow the instructions
+  here: https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration
 
-Run `make help` for a quick explanation of the `Makefile` tasks.
+- Using the RainLoop admin panel, make sure to set up your `ManageSieve` and
+  white lists for users you allow to login to your domain.
+
+- In the RainLoop admin, go to the `Plugins` and enable
+  the `postfixadmin-change-password` plugin. You will have to ensure that
+  the plugin settings are set like this:
+
+| PLUGIN SETTING | VALUE |
+| -------- | ----- |
+| MySQL Host | mariadb |
+| MySQL Port | 3306 |
+| MySQL Database | postfix |
+| MySQL table | mailbox |
+| MySQL username column | username |
+| MySQL password column | password |
+| MySQL User | postfix |
+| MySQL Password | {MYSQL postfix user password} |
+| Encrypt | md5encrypt |
+| Allowed Emails | * |
+
+The password to use in the change password settings is the `postfix` database
+user password. You can get it by `ssh` into your host and examining the
+`docker-compose.yml` file:
+
+    $ ssh deploy@yourdomain.tld
+    $ grep MYSQL_PASSWORD docker-compose.yml
+      - MYSQL_PASSWORD=XXXXXXXXX
+
+Setting up the `postfixadmin-change-password` plugin will allow users
+to change their mailbox passwords.
 
 ## Web Site files
 
@@ -70,8 +107,21 @@ create an alterate setup:
 Note that files placed in `www/` are ignored by git and will have
 to be backed up.
 
-TODO: Use local_action to create list of www/ dirs and files and create/copy
-them onto the remote server.
+## Redeploying, starting over.
+
+On your control host, the first time you run this, it will run `./bin/setup`
+and set your `./inventory` files and variable files in `./group_vars/all/`.
+
+Use `make reset` to remove these files and start over.
+
+You can also `make redo` if you make changes to your
+base variables and want to push those changes to your server.
+
+If you want to make changes to your secrets (e.g. change passwords),
+use `make edit_secrets`. This task decrypts and re-encrypts your secrets
+using `ansible-vault`.
+
+Run `make help` for a quick explanation of all `Makefile` tasks.
 
 ## User password hashes
 
@@ -98,7 +148,7 @@ After running the process the first time, you can do:
 
       $ make save
 
-This will create a file `backup-YYYYMMDD-hhmm.tar.gz` which you can stash
+This will create a file `backup/{domain}-YYYYMMDD-hhmm.tar.gz` which you can stash
 and will include your inventory file, variables and vault password.
 
 ## References

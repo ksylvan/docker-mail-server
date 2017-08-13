@@ -1,0 +1,11 @@
+---
+- name: Install required packages (RedHat)
+  dnf: state=latest name={{ item }}
+  with_items: "{{ required_packages }}"
+
+- name: Install optional packages (Debian)
+  dnf: state=latest name={{ item }}
+  with_items: "{{ optional_packages }}"
+
+- name: Update all packages
+  dnf: state=latest name='*'

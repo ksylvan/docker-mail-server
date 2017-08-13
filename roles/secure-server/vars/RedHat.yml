@@ -1,0 +1,12 @@
+---
+required_packages:
+  - ufw
+  - fail2ban
+  - ssmtp
+  - logwatch
+
+optional_packages:
+  - mosh
+  - vim
+
+ssh_service_name: sshd

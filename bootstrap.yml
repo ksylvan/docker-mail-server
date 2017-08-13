@@ -1,4 +1,4 @@
-# Bootstrap debian server with some common secure settings
+# Bootstrap debian or redhat server with hardened security settings
 ---
 - hosts: all
   gather_facts: false
@@ -9,36 +9,28 @@
   pre_tasks:
   - name: Install python 2 if not there
     raw: |
-      test -e /usr/bin/python || \
-      (apt -y update && apt install -y python-simplejson)
+      if [ -r /etc/debian_version ]; then
+        test -e /usr/bin/python ||
+        (apt -y update && apt install -y python-simplejson);
+      elif [ -r /etc/fedora-release ]; then
+        test -e /usr/bin/python ||
+        dnf -y install python2-dnf libselinux-python;
+      else
+        echo "Only Debian and Fedora supported.";
+        exit 1;
+      fi
     register: output
     changed_when: output.stdout|trim() != ""
-  - name: Install sudo if not there
+  - name: Install sudo if not there - only relevant for debian
     raw: |
-      test -e /usr/bin/sudo || apt install -y sudo
+      if [ -r /etc/debian_version ]; then
+        test -e /usr/bin/sudo || apt install -y sudo;
+      fi
     register: output
     changed_when: output.stdout|trim() != ""
 
-  tasks:
-  # Deploy User setup
-  #
-  - name: Add deploy user
-    user: >
-      name={{ deploy_user_name }}
-      password="{{ deploy_password }}" shell=/bin/bash
-
-  - name: Add authorized keys for deploy user
-    authorized_key:
-      user: "{{ deploy_user_name }}"
-      key: "{{ lookup('file', item) }}"
-    with_items: "{{ deploy_public_keys }}"
-
-  - name: Add deploy user to sudoers
-    lineinfile:
-      dest: "/etc/sudoers.d/{{ deploy_user_name}}"
-      line: "{{ deploy_user_name }} ALL=(ALL) NOPASSWD: ALL"
-      state: present
-      create: yes
+  roles:
+  - deploy-user
 
 # Now, with deploy user set up, we can use it to do the rest.
 # Especially important for when we shut the door on root ssh logins.
@@ -47,113 +39,5 @@
   remote_user: "{{ deploy_user_name }}"
   become: true
 
-  tasks:
-  # Fixing the hostname
-  #
-  - command: cat /etc/hostname
-    register: etc_hostname
-    changed_when: false
-
-  - block:
-    - name: Set hostname
-      replace:
-        dest: /etc/hostname
-        regexp: '\b(.*)\b'
-        replace: '{{ domain_name }}'
-    - hostname: name="{{ domain_name }}"
-    when: etc_hostname.stdout|trim() != domain_name
-
-  - name: Fix /etc/hosts
-    blockinfile:
-      dest: /etc/hosts
-      block: |
-        {% for item in ansible_all_ipv4_addresses %}
-        {{ item }} {{ domain_name }}
-        {% endfor %}
-      marker: "# {mark} ANSIBLE MANAGED"
-
-  # Packages
-  #
-  - apt: name=aptitude state=present
-  - name: Update APT Package cache
-    apt: update_cache=yes cache_valid_time=3600
-    changed_when: false
-
-  - name: Upgrade APT to the latest packages
-    apt: upgrade=safe
-
-  - name: Install required packages
-    apt: state=installed pkg={{ item }}
-    with_items: "{{ required_packages }}"
-
-  - name: Install optional packages
-    apt: state=installed pkg={{ item }}
-    with_items: "{{ optional_packages }}"
-
-  - name: Adjust APT update intervals
-    copy: src=files/apt_periodic dest=/etc/apt/apt.conf.d/10periodic
-
-  # Configure firewall
-  #
-  - service: name=ufw state=started
-
-  - name: Allow ssh traffic
-    ufw: rule=allow port={{ ssh_port }} proto=tcp
-
-  - name: Allow mosh traffic
-    ufw: rule=allow proto=udp port={{ mosh_from_port }}:{{ mosh_to_port }}
-    when: "'mosh' in optional_packages"
-
-  - name: Setup ufw (with deny default now)
-    ufw: state=enabled policy=deny
-
-  - name: Email log summary daily
-    lineinfile: dest=/etc/cron.daily/00logwatch
-                regexp="^/usr/sbin/logwatch"
-                line="/usr/sbin/logwatch --output mail --mailto {{ logwatch_email }} --detail high"
-                state=present create=yes
-
-  - name: Fix mailhub in ssmtp config
-    lineinfile: dest=/etc/ssmtp/ssmtp.conf
-                regexp="^mailhub="
-                line="mailhub={{ domain_name }}"
-                state=present create=yes
-
-  # Root Password change
-  #
-  - name: Change root password
-    user: name=root password="{{ root_password }}"
-
-  # Lock down SSH
-  #
-  - name: Change ssh port
-    lineinfile: dest=/etc/ssh/sshd_config
-                regexp="^Port\s"
-                line="Port {{ ssh_port }}"
-                state=present
-    notify: Restart ssh
-
-  - name: Disallow password authentication
-    lineinfile: dest=/etc/ssh/sshd_config
-                regexp="^PasswordAuthentication"
-                line="PasswordAuthentication no"
-                state=present
-    notify: Restart ssh
-
-  - name: Disallow root SSH access
-    lineinfile: dest=/etc/ssh/sshd_config
-                regexp="^PermitRootLogin"
-                line="PermitRootLogin no"
-                state=present
-    notify: Restart ssh
-
-  - name: Fix server timezone
-    timezone: name={{ timezone }}
-    notify:
-    - Restart cron
-
-  handlers:
-  - name: Restart ssh
-    service: name=ssh state=restarted
-  - name: Restart cron
-    service: name=cron state=restarted
+  roles:
+  - secure-server

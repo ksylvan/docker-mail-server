@@ -1,26 +1,4 @@
-# Based on https://ryaneschinger.com/blog/securing-a-server-with-ansible/
-# Use a random password generator to set up your passwords
-# e.g. https://www.random.org/passwords/
-#
 ---
-deploy_public_keys:
-  - ~/.ssh/id_rsa.pub
-
-required_packages:
-  - ufw
-  - fail2ban
-  - unattended-upgrades
-  - ssmtp
-  - logwatch
-
-optional_packages:
-  - mosh
-  - vim
-
-ssh_port: 22
-mosh_from_port: 60000
-mosh_to_port: 60010
-
 # user passwords on the server
 #
 deploy_password: "{{ vault_deploy_encrypted_password }}"
