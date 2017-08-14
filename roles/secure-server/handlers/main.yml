@@ -2,4 +2,4 @@
 - name: Restart ssh
   service: name={{ ssh_service_name }} state=restarted
 - name: Restart cron
-  service: name=cron state=restarted
+  service: name={{ cron_service_name }} state=restarted

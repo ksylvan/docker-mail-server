@@ -13,7 +13,7 @@
         test -e /usr/bin/python ||
         (apt -y update && apt install -y python-simplejson);
       elif [ -r /etc/fedora-release ]; then
-        test -e /usr/bin/python ||
+        rpm -q libselinux-python >/dev/null 2>&1 ||
         dnf -y install python2-dnf libselinux-python;
       else
         echo "Only Debian and Fedora supported.";

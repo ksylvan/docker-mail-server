@@ -1,9 +1,9 @@
 ---
-- name: Install required packages (RedHat)
+- name: Install required packages
   dnf: state=latest name={{ item }}
   with_items: "{{ required_packages }}"
 
-- name: Install optional packages (Debian)
+- name: Install optional packages
   dnf: state=latest name={{ item }}
   with_items: "{{ optional_packages }}"
 

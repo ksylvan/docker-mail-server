@@ -5,7 +5,7 @@
   roles:
   - docker
   - unblock-ports
-  - certificates
+  - { role: certificates, when: not self_signed_certs }
 
 - hosts: all
   become: true

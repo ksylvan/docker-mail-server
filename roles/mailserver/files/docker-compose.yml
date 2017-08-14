@@ -19,20 +19,22 @@ services:
       - "4190:4190" # SIEVE      STARTTLS - Optional - Recommended for mail filtering
     environment:
       - DBPASS={{ user_password }}
-    # - ENABLE_POP3=true          # Enable POP3 protocol
-    # - GREYLISTING=gross         # Enable gross greylisting policy server
+    # - ENABLE_POP3=true          # Enable POP3 protocol
+    # - GREYLISTING=gross         # Enable gross greylisting policy server
     # - DISABLE_CLAMAV=true       # Disable virus scanning
     # - DISABLE_SPAMASSASSIN=true # Disable SPAM checking
     # - DISABLE_SIEVE=true        # Disable ManageSieve protocol
     volumes:
       - /mnt/docker/mail:/var/mail
       - /mnt/docker/mail/opendkim:/etc/opendkim/keys
+{% if not self_signed_certs %}
       - /mnt/docker/nginx/certs:/etc/letsencrypt
+{% endif %}
     depends_on:
       - mariadb
 
   # Administration interface
-  # https://github.com/hardware/postfixadmin
+  # https://github.com/hardware/postfixadmin
   # http://postfixadmin.sourceforge.net/
   # Configuration : https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
   postfixadmin:
@@ -48,7 +50,7 @@ services:
       - mariadb
 
   # Webmail (Optional)
-  # https://github.com/hardware/rainloop
+  # https://github.com/hardware/rainloop
   # https://www.rainloop.net/
   # Configuration : https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration
   rainloop:
@@ -105,7 +107,11 @@ services:
       - /mnt/docker/nginx/sites-enabled:/sites-enabled
       - /mnt/docker/nginx/conf:/conf.d
       - /mnt/docker/nginx/log:/var/log/nginx
+{%if self_signed_certs %}
+      - /mnt/docker/mail/ssl/selfsigned:/certs
+{%else %}
       - /mnt/docker/nginx/certs:/certs
+{%endif %}
       - /mnt/docker/www:/www
     depends_on:
       - postfixadmin

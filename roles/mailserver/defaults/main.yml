@@ -1,3 +1,4 @@
 ---
 db_password: myDBpa88w0rd
 user_password: postf1x001a9
+self_signed_certs: false

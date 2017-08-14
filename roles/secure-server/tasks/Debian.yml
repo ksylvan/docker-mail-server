@@ -11,11 +11,11 @@
 - name: Upgrade APT to the latest packages
   apt: upgrade=safe
 
-- name: Install required packages (Debian)
+- name: Install required packages
   apt: state=installed pkg={{ item }}
   with_items: "{{ required_packages }}"
 
-- name: Install optional packages (Debian)
+- name: Install optional packages
   apt: state=installed pkg={{ item }}
   with_items: "{{ optional_packages }}"
 

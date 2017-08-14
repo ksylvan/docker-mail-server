@@ -10,3 +10,4 @@ optional_packages:
   - vim
 
 ssh_service_name: sshd
+cron_service_name: crond

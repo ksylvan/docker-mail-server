@@ -11,3 +11,4 @@ optional_packages:
   - vim
 
 ssh_service_name: ssh
+cron_service_name: cron
