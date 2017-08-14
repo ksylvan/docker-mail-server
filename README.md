@@ -1,6 +1,6 @@
 # mail-server
 
-Ansible Playbooks for setting up a secured ssh mail and web server.
+Ansible Playbooks for setting up a secured ssh, mail, and web server.
 
 ## Quick Start
 
@@ -45,8 +45,9 @@ to your DNS, do:
 - At this point, visit your `postfixadmin` setup script and follow the
   instructions here: https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
 
-- Using `postfixadmin`, set up email mailboxes for `admin` and `contact` and
-  set up aliases for the following:
+- Using `postfixadmin`, set up your super-administrator account, then set up your domain,
+  and proceed to set up mailboxes for `admin` and `contact`. Now set up aliases for
+  the following:
 
 | ALIAS | MAILBOX |
 | -------- | ----- |
@@ -62,7 +63,7 @@ to your DNS, do:
   here: https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration
 
 - Using the RainLoop admin panel, make sure to set up your `ManageSieve` and
-  white lists for users you allow to login to your domain.
+  white-lists for users you allow to login to your domain.
 
 - In the RainLoop admin, go to the `Plugins` and enable
   the `postfixadmin-change-password` plugin. You will have to ensure that
