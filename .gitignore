@@ -3,4 +3,3 @@ group_vars/
 .vault_pass.txt
 *.retry
 .tmp*
-backup/
