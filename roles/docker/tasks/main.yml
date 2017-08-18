@@ -3,7 +3,7 @@
 - include: "{{ ansible_os_family }}.yml"
 
 - name: Enable docker service
-  service: name=docker enabled=yes
+  service: name=docker enabled=yes state=started
 
 - name: docker group
   group: name=docker state=present

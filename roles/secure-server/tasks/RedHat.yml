@@ -1,4 +1,14 @@
 ---
+- name: Is firewalld installed?
+  shell: rpm -q firewalld > /dev/null || echo 'Not found'
+  register: tmp
+  changed_when: false
+- set_fact:
+    firewalld_installed: "{{ tmp.stdout_lines|length() == 0 }}"
+
+- service: name=firewalld enabled=no state=stopped
+  when: firewalld_installed
+
 - name: Install required packages
   dnf: state=latest name={{ item }}
   with_items: "{{ required_packages }}"
