@@ -36,13 +36,6 @@
     state: directory
     recurse: yes
 
-- name: postfix config override
-  copy:
-    src: files/mailserver/custom.conf
-    dest: /mnt/docker/mail/postfix/custom.conf
-  notify:
-  - restart mailserver
-
 - name: nginx sites directory
   file:
     path: /mnt/docker/nginx/sites-enabled

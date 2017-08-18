@@ -8,7 +8,7 @@ Prerequisite: Recent version of [Ansible](http://docs.ansible.com) installed
 on your control host.
 
 Set up your host's domain name entries as documented here:
-https://github.com/hardware/mailserver (you can add the DKIM signature
+https://github.com/ksylvan/mailserver (you can add the DKIM signature
 when the stack is up).
 
 To start, you'll need to have the following set up in your DNS (`A.B.C.D`
@@ -32,7 +32,7 @@ represents your IP address):
 - Reboot the installed server.
 
 - Add additional DNS records (for `SPF`, `DKIM`, and `DMARC`) as
-  documented [here](https://github.com/hardware/mailserver) to increase
+  documented [here](https://github.com/ksylvan/mailserver) to increase
   your reputation score.
 
 Once your server is up, from your control host, do `ssh deploy@server.domain`
@@ -43,7 +43,7 @@ to your DNS, do:
       cat /mnt/docker/mail/opendkim/{your-domain-name}/mail.txt
 
 - At this point, visit your `postfixadmin` setup script and follow the
-  instructions here: https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
+  instructions here: https://github.com/ksylvan/mailserver/wiki/Postfixadmin-initial-configuration
 
 - Using `postfixadmin`, set up your super-administrator account, then set up your domain,
   and proceed to set up mailboxes for `admin` and `contact`. Now set up aliases for
@@ -60,7 +60,7 @@ to your DNS, do:
 | webform | contact@yourdomain.tld |
 
 - Set up your Rainloop (webmail) configuration. Follow the instructions
-  here: https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration
+  here: https://github.com/ksylvan/mailserver/wiki/Rainloop-initial-configuration
 
 - Using the RainLoop admin panel, make sure to set up your `ManageSieve` and
   white-lists for users you allow to login to your domain.
@@ -92,6 +92,13 @@ user password. You can get it by `ssh` into your host and examining the
 
 Setting up the `postfixadmin-change-password` plugin will allow users
 to change their mailbox passwords.
+
+## Postfix Config customization
+
+You can add postfix customizations to `/mnt/docker/mail/postfix/custom.conf` on your mailserver
+machine and restart the stack.
+
+More info about postfix overrides here: https://github.com/ksylvan/mailserver#override-postfix-configuration
 
 ## Web Site files
 
