@@ -120,6 +120,9 @@ to be backed up.
 On your control host, the first time you run this, it will run `./bin/setup`
 and set your `./inventory` files and variable files in `./group_vars/all/`.
 
+Subsequent runs of `./bin/setup` will read the stored values and present
+them as defaults.
+
 Use `make reset` to remove these files and start over.
 
 You can also `make redo` if you make changes to your

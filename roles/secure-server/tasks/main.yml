@@ -90,3 +90,7 @@
   timezone: name={{ timezone }}
   notify:
   - Restart cron
+
+- name: Create .bootstrap_done marker
+  local_action: file path=.bootstrap_done state=touch
+  become: false

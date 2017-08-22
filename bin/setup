@@ -4,48 +4,85 @@
 
 cd $(dirname $0)/..
 
-mkdir -p group_vars/all
-
 VARS=group_vars/all/vars.yml
 VAULT_VARS=group_vars/all/secret.yml
 VAULT_PASS=".vault_pass.txt"
 
-cp bin/all.yml group_vars/all/vars.yml
+if [ ! -d group_vars/all ]; then
+  mkdir -p group_vars/all
+fi
+
+tmp_vars=/tmp/tmpvars$$
+cp bin/all.yml $tmp_vars
+
+cleanup()
+{
+  rm -f $tmp_vars
+  if [ -r $VAULT_PASS ]; then
+    ansible-vault encrypt $VAULT_VARS
+  fi
+}
+
+trap cleanup EXIT
+
+if [ -r $VAULT_VARS -a -r $VAULT_PASS ]; then
+  ansible-vault decrypt $VAULT_VARS
+fi
+
+get_stored_default()
+{
+  case $1 in
+    vault_*)
+      __r=$(grep "$1" $VAULT_VARS 2>/dev/null| awk '{print $2}' )
+      ;;
+    *)
+      __r=$(grep "$1" $VARS 2>/dev/null| awk '{print $2}')
+      ;;
+  esac
+  __r=$(echo $__r | sed "s/^\([\"']\)\(.*\)\1\$/\2/g")
+  if [ -z "$__r" ]; then echo "$2"; else echo "$__r"; fi
+}
 
 prompt_with_default()
 {
-  __prompt="$(eval echo \"$1 [\$$2\]: \")"
+  __get="$3" # set to grab the stored values
+  __def="$(eval echo \$$2)"
+  if [ -n "$__get" ]; then __def="$(get_stored_default $2 $__def)"; fi
+  __prompt="$(eval echo \"$1 [\$__def\]: \")"
   read -p "$__prompt" ans
-  eval "$2=\${ans:-\$$2}"
+  eval "$2=\${ans:-\$__def}"
 }
 
 domain_name=domain.com
-prompt_with_default "Top level domain name" domain_name
+prompt_with_default "Top level domain name" domain_name -stored
 
-echo ${domain_name} > inventory
+inventory_hostname=$domain_name
+if [ -r inventory ]; then inventory_hostname=$(cat inventory); fi
+prompt_with_default "Hostname (for Ansible inventory)" inventory_hostname
+echo ${inventory_hostname} > inventory
 
 timezone='America/Los_Angeles'
-prompt_with_default "Server timezone" timezone
+prompt_with_default "Server timezone" timezone -stored
 
 vault_root_password=MyR00tPa33w0rd
-prompt_with_default "root password" vault_root_password
+prompt_with_default "root password" vault_root_password -stored
 
 deploy_user_name=deploy
-prompt_with_default "deploy user name" deploy_user_name
+prompt_with_default "deploy user name" deploy_user_name -stored
 vault_deploy_password=MyD3pl0yPas3w0rd
-prompt_with_default "deploy user password" vault_deploy_password
+prompt_with_default "deploy user password" vault_deploy_password -stored
 
 admin_email=postmaster@${domain_name}
-prompt_with_default "Admin reports email (for logwatch, etc.)" admin_email
+prompt_with_default "Admin reports email (for logwatch, etc.)" admin_email -stored
 
 vault_db_password=myDBpa88w0rd
-prompt_with_default "MariaDB root user password" vault_db_password
+prompt_with_default "MariaDB root user password" vault_db_password -stored
 
 vault_user_password=postf1x001a9
-prompt_with_default "MariaDB postfix user password" vault_user_password
+prompt_with_default "MariaDB postfix user password" vault_user_password -stored
 
 self_signed_certs=false
-prompt_with_default "Use self-signed certs (use for testing)" self_signed_certs
+prompt_with_default "Use self-signed certs (use for testing)" self_signed_certs -stored
 
 echo ""
 echo "NOTE: When DB is initialized, database passwords are set."
@@ -54,7 +91,7 @@ echo ""
 
 for i in domain_name deploy_user_name admin_email timezone self_signed_certs
 do
-  echo "$i: $(eval echo \$$i)" >> $VARS
+  echo "$i: $(eval echo \$$i)" >> $tmp_vars
 done
 
 vault_root_encrypted_password=$(./bin/mkpasswd "$vault_root_password")
@@ -74,5 +111,6 @@ done
 
 vault_pass='This is my c00l vault password'
 prompt_with_default "Your vault password" vault_pass
+
 echo "$vault_pass" > $VAULT_PASS
-ansible-vault encrypt $VAULT_VARS
+cp $tmp_vars $VARS

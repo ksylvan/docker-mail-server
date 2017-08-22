@@ -1,7 +1,7 @@
 # Makefile for mail server setup
 #
-.PHONY: all bootstrap mailserver rebootstrap reset clean \
-  edit edit_secrets redo save help
+.PHONY: all bootstrap mailserver reset clean \
+	edit edit_secrets save help setup rebootstrap
 
 USER_VAR = deploy_user_name
 VAR_FILE = group_vars/all/vars.yml
@@ -17,24 +17,20 @@ endif
 
 EDITOR ?= vi
 
-all:
-	@if [ ! -r $(VAR_FILE) ]; then \
-		./bin/setup; \
-		if [ $$? -ne 0 ]; then exit $$?; fi; \
-		make bootstrap; \
-	fi; \
-	make mailserver
+all: setup bootstrap mailserver
+
+setup:
+	@./bin/setup
 
 help:
 	@echo "all (default) - bootstrap if needed, then deploy mailserver."
 	@echo "bootstrap - run the bootstrap playbook as user root"
+	@echo "rebootstrap - run the bootstrap playbook as deploy user"
 	@echo "mailserver - deploy mail server stack (as deploy user)"
-	@echo "rebootstrap - run the bootstrap playbook as deploy user."
 	@echo "reset - delete inventory and variables for a fresh start."
 	@echo "clean - remove any *.retry files."
 	@echo "edit - run EDITOR (default vi) on variables file."
 	@echo "edit_secrets - decrypt, run EDITOR on secrets file, then encrypt."
-	@echo "redo - re-run bootstrap and mailserver playbooks (as deploy user)"
 	@echo "save - save variables and inventory in backup/domain-YYYYMMDD-hhmm.tgz"
 	@echo "help - print this message."
 
@@ -42,18 +38,20 @@ mailserver:
 	@echo "Running playbooks using $(DEPLOY_USER) user"
 	ansible-playbook -u $(DEPLOY_USER) mailserver.yml
 
-# bootstrap sets up a secure debian server (the first time)
+# bootstrap sets up a secure debian server
 bootstrap:
-	ansible-playbook -u root -k bootstrap.yml
+	@if [ -r .bootstrap_done ]; then \
+	  ansible-playbook -u $(DEPLOY_USER) bootstrap.yml; \
+	else \
+	  ansible-playbook -u root -k bootstrap.yml; \
+	fi
 
-# since root ssh logins are disabled, need to run this when boostrapping again
+# bootstrap explicitly as deploy user
 rebootstrap:
 	ansible-playbook -u $(DEPLOY_USER) bootstrap.yml
 
-redo: rebootstrap all
-
 # GENERATED FILES
-GEN = inventory group_vars .vault_pass.txt
+GEN = inventory group_vars .vault_pass.txt .bootstrap_done
 
 # clean up and start over
 reset:
