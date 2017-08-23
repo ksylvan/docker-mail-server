@@ -26,6 +26,7 @@ setup:
 
 help:
 	@echo "all (default) - setup, bootstrap, mailserver."
+	@echo "setup - Run the setup script."
 	@echo "do - Run bootstrap and mailserver tasks (no setup)."
 	@echo "bootstrap - run the bootstrap playbook as user root."
 	@echo "rebootstrap - run the bootstrap playbook as deploy user."
