@@ -22,6 +22,7 @@ represents your IP address):
 | www | IN | CNAME | any | mail.domain.tld. |
 | postfixadmin | IN | CNAME | any | mail.domain.tld. |
 | webmail | IN | CNAME | any | mail.domain.tld. |
+| spam | IN | CNAME | any | mail.domain.tld. |
 
 - Create a recent Debian or Fedora server, using whatever process you choose.
   I created a Debian 9 (Stretch) server in the cloud. Also tested with

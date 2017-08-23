@@ -8,6 +8,7 @@ root_password: "{{ vault_root_encrypted_password }}"
 #
 db_password: "{{ vault_db_password }}"
 user_password: "{{ vault_user_password }}"
+rspamd_password: "{{ vault_rspamd_password }}"
 #
 # USER SETTINGS. CHANGES ABOVE THIS LINE NOT RECOMMENDED.
 #

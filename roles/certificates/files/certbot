@@ -1,4 +1,6 @@
 #!/bin/sh
-docker run --rm -i \
+mkdir -p /tmp/letsencrypt
+docker run --rm -i -p 80:80 -p 443:443 \
   -v /mnt/docker/nginx/certs:/etc/letsencrypt \
+  -v /tmp/letsencrypt:/var/log/letsencrypt \
   kayvan/letsencrypt ${1+"$@"}

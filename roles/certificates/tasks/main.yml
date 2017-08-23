@@ -11,6 +11,7 @@
     -d mail.{{ domain_name }}
     -d webmail.{{ domain_name }}
     -d postfixadmin.{{ domain_name }}
+    -d spam.{{ domain_name }}
     -d www.{{ domain_name }}
     -d {{ domain_name }}
   args:
