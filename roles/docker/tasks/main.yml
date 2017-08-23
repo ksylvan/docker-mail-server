@@ -21,3 +21,10 @@
     url: https://github.com/docker/compose/releases/download/1.15.0/run.sh
     dest: /usr/local/bin/docker-compose
     mode: 0755
+
+# docker-compose bash completions
+- name: Set up bash completions for docker-compose
+  get_url:
+    url: https://github.com/docker/compose/blob/1.15.0/contrib/completion/bash/docker-compose
+    dest: /etc/bash_completion.d/docker-compose
+    mode: 0644
