@@ -1,4 +1,12 @@
 #!/bin/sh
-docker run --rm -i \
+mkdir -p /tmp/letsencrypt
+
+P=""
+case "$1" in
+certonly|renew)
+  P="=-p 80:80 -p 443:443 -v /tmp/letsencrypt:/var/log/letsencrypt";;
+esac
+
+docker run --rm -i $P \
   -v /mnt/docker/nginx/certs:/etc/letsencrypt \
   kayvan/letsencrypt ${1+"$@"}
