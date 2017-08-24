@@ -41,10 +41,10 @@ so you can look at the generated secrets. e.g. to get the DKIM key to add
 to your DNS, do:
 
       ssh deploy@server.domain
-      cat /mnt/docker/mail/opendkim/{your-domain-name}/mail.txt
+      cat /mnt/docker/mail/dkim/{your-domain-name}/public.key
 
 - At this point, visit your `postfixadmin` setup script and follow the
-  instructions here: https://github.com/ksylvan/mailserver/wiki/Postfixadmin-initial-configuration
+  instructions here: https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
 
 - Using `postfixadmin`, set up your super-administrator account, then set up your domain,
   and proceed to set up mailboxes for `admin` and `contact`. Now set up aliases for
@@ -61,7 +61,7 @@ to your DNS, do:
 | webform | contact@yourdomain.tld |
 
 - Set up your Rainloop (webmail) configuration. Follow the instructions
-  here: https://github.com/ksylvan/mailserver/wiki/Rainloop-initial-configuration
+  here: https://github.com/hardware/mailserver/wiki/Rainloop-initial-configuration
 
 - Using the RainLoop admin panel, make sure to set up your `ManageSieve` and
   white-lists for users you allow to login to your domain.
