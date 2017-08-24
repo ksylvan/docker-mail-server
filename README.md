@@ -126,7 +126,7 @@ them as defaults.
 
 Use `make reset` to remove these files and start over.
 
-You can also `make redo` if you make changes to your
+You can also `make do` if you make changes to your
 base variables and want to push those changes to your server.
 
 If you want to make changes to your secrets (e.g. change passwords),
@@ -150,9 +150,9 @@ If you wish to edit your secrets, use the `edit` task, like this:
       $ EDITOR=vi make edit
       Decryption successful
 
-      NOTE: Run "make redo" to push your changes.
+      NOTE: Run "make do" to push your changes.
 
-      $ make redo
+      $ make do
 
 ## Saving your settings
 
