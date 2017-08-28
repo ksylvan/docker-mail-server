@@ -1,7 +1,7 @@
 # Makefile for mail server setup
 #
 .PHONY: all bootstrap mailserver reset clean \
-	edit edit_secrets save help setup rebootstrap
+	edit edit_secrets save help setup rebootstrap do
 
 USER_VAR = deploy_user_name
 VAR_FILE = group_vars/all/vars.yml
@@ -17,16 +17,20 @@ endif
 
 EDITOR ?= vi
 
-all: setup bootstrap mailserver
+all: setup do
+
+do: bootstrap mailserver
 
 setup:
 	@./bin/setup
 
 help:
-	@echo "all (default) - bootstrap if needed, then deploy mailserver."
-	@echo "bootstrap - run the bootstrap playbook as user root"
-	@echo "rebootstrap - run the bootstrap playbook as deploy user"
-	@echo "mailserver - deploy mail server stack (as deploy user)"
+	@echo "all (default) - setup, bootstrap, mailserver."
+	@echo "setup - Run the setup script."
+	@echo "do - Run bootstrap and mailserver tasks (no setup)."
+	@echo "bootstrap - run the bootstrap playbook as user root."
+	@echo "rebootstrap - run the bootstrap playbook as deploy user."
+	@echo "mailserver - deploy mail server stack (as deploy user)."
 	@echo "reset - delete inventory and variables for a fresh start."
 	@echo "clean - remove any *.retry files."
 	@echo "edit - run EDITOR (default vi) on variables file."

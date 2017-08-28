@@ -53,6 +53,7 @@
   with_items:
   - postfixadmin
   - rainloop
+  - rspamd
   notify:
   - restart nginx
 

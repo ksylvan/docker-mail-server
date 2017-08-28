@@ -81,6 +81,9 @@ prompt_with_default "MariaDB root user password" vault_db_password -stored
 vault_user_password=postf1x001a9
 prompt_with_default "MariaDB postfix user password" vault_user_password -stored
 
+vault_rspamd_password=rsP1md178d
+prompt_with_default "RSpamd password" vault_rspamd_password -stored
+
 self_signed_certs=false
 prompt_with_default "Use self-signed certs (use for testing)" self_signed_certs -stored
 
@@ -105,7 +108,7 @@ for i in root deploy; do
     echo "$j: $(eval echo \\\'\"\$$j\"\\\')" >> $VAULT_VARS
   done
 done
-for i in vault_db_password vault_user_password; do
+for i in vault_db_password vault_user_password vault_rspamd_password; do
   echo "$i: $(eval echo \\\'\"\$$i\"\\\')" >> $VAULT_VARS
 done
 

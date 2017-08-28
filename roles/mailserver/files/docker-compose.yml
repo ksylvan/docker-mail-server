@@ -1,38 +1,46 @@
-version: '2'
+version: '2.1'
+
 services:
   mailserver:
-    image: hardware/mailserver
+    image: hardware/mailserver:1.1-beta
     container_name: mailserver
-    domainname: {{ domain_name }}     # Mail server FQDN & reverse = mail.domain.tld.
+    domainname: {{ domain_name }}                  # Mail server A/MX/FQDN & reverse PTR = mail.{{ domain_name }}.
     hostname: mail
     # restart: always
-    # extra_hosts:                        - Required for external database (on other server or for local database on host)
-    #  - "mariadb:xx.xx.xx.xx"            - Replace with IP address of MariaDB server
+    # extra_hosts:                          - Required for external database (on other server or for local databases on host without docker)
+    #  - "mariadb:xx.xx.xx.xx"              - Replace with IP address of MariaDB server
+    #  - "redis:xx.xx.xx.xx"                - Replace with IP address of Redis server
     ports:
-      - "25:25"     # SMTP                - Required
-    # - "110:110"   # POP3       STARTTLS - Optional - For webmails/desktop clients
-      - "143:143"   # IMAP       STARTTLS - Optional - For webmails/desktop clients
-    # - "465:465"   # SMTPS      SSL/TLS  - Optional - Enabled for compatibility reason, otherwise disabled
-      - "587:587"   # Submission STARTTLS - Optional - For webmails/desktop clients
-      - "993:993"   # IMAPS      SSL/TLS  - Optional - For webmails/desktop clients
-    # - "995:995"   # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
-      - "4190:4190" # SIEVE      STARTTLS - Optional - Recommended for mail filtering
+      - "25:25"       # SMTP                - Required
+    # - "110:110"     # POP3       STARTTLS - Optional - For webmails/desktop clients
+      - "143:143"     # IMAP       STARTTLS - Optional - For webmails/desktop clients
+    # - "465:465"     # SMTPS      SSL/TLS  - Optional - Enabled for compatibility reason, otherwise disabled
+      - "587:587"     # Submission STARTTLS - Optional - For webmails/desktop clients
+      - "993:993"     # IMAPS      SSL/TLS  - Optional - For webmails/desktop clients
+    # - "995:995"     # POP3S      SSL/TLS  - Optional - For webmails/desktop clients
+      - "4190:4190"   # SIEVE      STARTTLS - Optional - Recommended for mail filtering
     environment:
-      - DBPASS={{ user_password }}
-    # - ENABLE_POP3=true          # Enable POP3 protocol
-    # - GREYLISTING=gross         # Enable gross greylisting policy server
-    # - DISABLE_CLAMAV=true       # Disable virus scanning
-    # - DISABLE_SPAMASSASSIN=true # Disable SPAM checking
-    # - DISABLE_SIEVE=true        # Disable ManageSieve protocol
-      - RELAY_NETWORKS=172.0.0.0/8
+      - DBPASS={{ user_password }}                      # MariaDB database password (required)
+      - RSPAMD_PASSWORD={{ rspamd_password }}             # Rspamd WebUI password (required)
+    # - ADD_DOMAINS=aa.tld, www.bb.tld...   # Add additional domains separated by commas (needed for dkim keys etc.)
+    # - ENABLE_POP3=true                    # Enable POP3 protocol
+    # - ENABLE_FETCHMAIL=true               # Enable fetchmail forwarding
+    # - DISABLE_CLAMAV=true                 # Disable virus scanning
+    # - DISABLE_SIGNING=true                # Disable DKIM/ARC signing
+    # - DISABLE_GREYLISTING=true            # Disable greylisting policy
+    # - DISABLE_RATELIMITING=true           # Disable ratelimiting policy
+      - RELAY_NETWORKS=172.16.0.0/12        # Includes the docker-compose default network
+    #
+    # Full list : https://github.com/hardware/mailserver#environment-variables
+    #
     volumes:
       - /mnt/docker/mail:/var/mail
-      - /mnt/docker/mail/opendkim:/etc/opendkim/keys
 {% if not self_signed_certs %}
       - /mnt/docker/nginx/certs:/etc/letsencrypt
 {% endif %}
     depends_on:
       - mariadb
+      - redis
 
   # Administration interface
   # https://github.com/hardware/postfixadmin
@@ -77,22 +85,6 @@ services:
     depends_on:
       - mailserver
 
-#  # Authoritative DNS server (Optional)
-#  # https://github.com/hardware/nsd-dnssec
-#  # https://www.nlnetlabs.nl/projects/nsd/
-#  # Configuration : https://github.com/hardware/mailserver/wiki/NSD-initial-configuration
-#  nsd:
-#    image: hardware/nsd-dnssec
-#    container_name: nsd
-#    # restart: always
-#    ports:
-#      - "53:53"
-#      - "53:53/udp"
-#    volumes:
-#      - /mnt/docker/nsd/conf:/etc/nsd
-#      - /mnt/docker/nsd/zones:/zones
-#      - /mnt/docker/nsd/db:/var/db/nsd
-
   # Web server
   # https://github.com/Wonderfall/dockerfiles/tree/master/nginx
   # https://nginx.org/
@@ -115,6 +107,7 @@ services:
 {%endif %}
       - /mnt/docker/www:/www
     depends_on:
+      - mailserver
       - postfixadmin
       - rainloop
       - contact
@@ -134,3 +127,16 @@ services:
       - MYSQL_PASSWORD={{ user_password }}
     volumes:
       - /mnt/docker/mysql/db:/var/lib/mysql
+
+  # Cache Database
+  # https://github.com/docker-library/redis
+  # https://redis.io/
+  redis:
+    image: redis:3.2-alpine
+    container_name: redis
+    # restart: always
+    command: redis-server --appendonly yes
+    sysctls:
+      - net.core.somaxconn=1024
+    volumes:
+      - /mnt/docker/redis/db:/data

@@ -22,6 +22,7 @@ represents your IP address):
 | www | IN | CNAME | any | mail.domain.tld. |
 | postfixadmin | IN | CNAME | any | mail.domain.tld. |
 | webmail | IN | CNAME | any | mail.domain.tld. |
+| spam | IN | CNAME | any | mail.domain.tld. |
 
 - Create a recent Debian or Fedora server, using whatever process you choose.
   I created a Debian 9 (Stretch) server in the cloud. Also tested with
@@ -40,7 +41,7 @@ so you can look at the generated secrets. e.g. to get the DKIM key to add
 to your DNS, do:
 
       ssh deploy@server.domain
-      cat /mnt/docker/mail/opendkim/{your-domain-name}/mail.txt
+      cat /mnt/docker/mail/dkim/{your-domain-name}/public.key
 
 - At this point, visit your `postfixadmin` setup script and follow the
   instructions here: https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
@@ -125,7 +126,7 @@ them as defaults.
 
 Use `make reset` to remove these files and start over.
 
-You can also `make redo` if you make changes to your
+You can also `make do` if you make changes to your
 base variables and want to push those changes to your server.
 
 If you want to make changes to your secrets (e.g. change passwords),
@@ -149,9 +150,9 @@ If you wish to edit your secrets, use the `edit` task, like this:
       $ EDITOR=vi make edit
       Decryption successful
 
-      NOTE: Run "make redo" to push your changes.
+      NOTE: Run "make do" to push your changes.
 
-      $ make redo
+      $ make do
 
 ## Saving your settings
 
