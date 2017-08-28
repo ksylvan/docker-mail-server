@@ -1,5 +1,5 @@
 ---
-# Based on README at https://github.com/ksylvan/mailserver
+# Based on README at https://github.com/hardware/mailserver
 - name: unblock the needed ports
   ufw: rule=allow port={{ item }} proto=tcp
   with_items:

@@ -2,13 +2,20 @@
 
 Ansible Playbooks for setting up a secured ssh, mail, and web server.
 
+## Branches
+
+The scripts and playbooks here track https://github.com/hardware/mailserver
+
+- `master` is in step with the latest stable branch (currently `v1.1-stable`)
+- `develop` is bleeding edge (docker tag `v1.1-latest`, git branch `master`)
+
 ## Quick Start
 
 Prerequisite: Recent version of [Ansible](http://docs.ansible.com) installed
 on your control host.
 
 Set up your host's domain name entries as documented here:
-https://github.com/ksylvan/mailserver (you can add the DKIM signature
+https://github.com/hardware/mailserver (you can add the DKIM signature
 when the stack is up).
 
 To start, you'll need to have the following set up in your DNS (`A.B.C.D`
@@ -33,7 +40,7 @@ represents your IP address):
 - Reboot the installed server.
 
 - Add additional DNS records (for `SPF`, `DKIM`, and `DMARC`) as
-  documented [here](https://github.com/ksylvan/mailserver) to increase
+  documented [here](https://github.com/hardware/mailserver) to increase
   your reputation score.
 
 Once your server is up, from your control host, do `ssh deploy@server.domain`
@@ -99,7 +106,7 @@ to change their mailbox passwords.
 You can add postfix customizations to `/mnt/docker/mail/postfix/custom.conf` on your mailserver
 machine and restart the stack.
 
-More info about postfix overrides here: https://github.com/ksylvan/mailserver#override-postfix-configuration
+More info about postfix overrides here: https://github.com/hardware/mailserver#override-postfix-configuration
 
 ## Web Site files
 

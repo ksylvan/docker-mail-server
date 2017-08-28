@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   mailserver:
-    image: hardware/mailserver:1.1-beta
+    image: hardware/mailserver:1.1-stable
     container_name: mailserver
     domainname: {{ domain_name }}                  # Mail server A/MX/FQDN & reverse PTR = mail.{{ domain_name }}.
     hostname: mail
@@ -30,6 +30,9 @@ services:
     # - DISABLE_GREYLISTING=true            # Disable greylisting policy
     # - DISABLE_RATELIMITING=true           # Disable ratelimiting policy
       - RELAY_NETWORKS=172.16.0.0/12        # Includes the docker-compose default network
+{% if pgp_encrypt_emails %}
+      - ENABLE_ENCRYPTION=true              # See https://github.com/hardware/mailserver#enable-automatic-gpg-encryption
+{% endif %}
     #
     # Full list : https://github.com/hardware/mailserver#environment-variables
     #

@@ -87,12 +87,16 @@ prompt_with_default "RSpamd password" vault_rspamd_password -stored
 self_signed_certs=false
 prompt_with_default "Use self-signed certs (use for testing)" self_signed_certs -stored
 
+pgp_encrypt_emails=false
+prompt_with_default "PGP Encrypt Emails" pgp_encrypt_emails -stored
+
 echo ""
 echo "NOTE: When DB is initialized, database passwords are set."
 echo "If you need to change them, you'll need to connect to DB."
 echo ""
 
-for i in domain_name deploy_user_name admin_email timezone self_signed_certs
+for i in domain_name deploy_user_name admin_email timezone \
+  self_signed_certs pgp_encrypt_emails
 do
   echo "$i: $(eval echo \$$i)" >> $tmp_vars
 done
