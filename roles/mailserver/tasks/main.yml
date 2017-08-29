@@ -90,18 +90,23 @@
     with_filetree: www/{{ domain_name}}
     when: item.state == 'directory'
 
-  # list of non-pdf files
+  # list of text files
   - local_action:
-      module: shell find . -type f | grep -v '\.pdf$'
+      module: |
+        shell find . -type f | xargs file -i |
+        egrep 'text/plain|text/html' | awk -F: '{print $1}'
       args:
         chdir: www/{{ domain_name }}
     register: web_text_files
     changed_when: false
+  # list of binary files
   - local_action:
-      module: shell find . -type f -name '*.pdf'
+      module: |
+        shell find . -type f | xargs file -i |
+        egrep -v 'text/plain|text/html' | awk -F: '{print $1}'
       args:
         chdir: www/{{ domain_name }}
-    register: web_pdf_files
+    register: web_binary_files
     changed_when: false
 
   # now create files with template
@@ -112,13 +117,13 @@
       group: 991
     with_items: "{{ web_text_files.stdout_lines }}"
 
-  # Copy the pdf files
+  # Copy the binary files
   - copy:
       src: www/{{ domain_name }}/{{ item }}
       dest: /mnt/docker/www/{{ item }}
       owner: 991
       group: 991
-    with_items: "{{ web_pdf_files.stdout_lines }}"
+    with_items: "{{ web_binary_files.stdout_lines }}"
 
   # Now for the website nginx config
   - template:
