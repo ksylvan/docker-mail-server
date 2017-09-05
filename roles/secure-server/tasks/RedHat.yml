@@ -19,3 +19,10 @@
 
 - name: Update all packages
   dnf: state=latest name='*'
+
+- name: Set up fail2ban sshd jail
+  copy:
+    src: files/sshd.conf
+    dest: /etc/fail2ban/jail.d/sshd.conf
+
+- service: name=fail2ban enabled=yes state=started
