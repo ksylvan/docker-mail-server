@@ -44,6 +44,15 @@
     owner: 991
     group: 991
 
+- name: Set up robots global file (serves /robots.txt)
+  copy:
+    src: files/nginx/robots
+    dest: /mnt/docker/nginx/conf/robots
+    owner: 991
+    group: 991
+  notify:
+  - restart nginx
+
 - name: Enable sites
   template:
     src: files/nginx/{{ item }}.conf
