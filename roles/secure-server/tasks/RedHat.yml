@@ -20,9 +20,31 @@
 - name: Update all packages
   dnf: state=latest name='*'
 
-- name: Set up fail2ban sshd jail
+- name: Set up fail2ban sshd jail on Redhat
   copy:
     src: files/sshd.conf
     dest: /etc/fail2ban/jail.d/sshd.conf
+
+- name: Directory for selinux files
+  file:
+    path: ~{{ deploy_user_name }}/selinux
+    state: directory
+    recurse: yes
+  become_user: "{{ deploy_user_name }}"
+
+- name: Set up SELinux for fail2ban working with ufw
+  copy:
+    src: files/my_fail2ban.te
+    dest: ~{{ deploy_user_name }}/selinux/my_fail2ban.te
+
+- name: Compile and install SELinux fail2ban module
+  shell: |
+    checkmodule -M -m -o my_fail2ban.mod my_fail2ban.te
+    semodule_package -o my_fail2ban.pp -m my_fail2ban.mod
+    sudo semodule -i my_fail2ban.pp
+  args:
+    chdir: ~{{ deploy_user_name }}/selinux
+    creates: ~{{ deploy_user_name }}/selinux/my_fail2ban.pp
+  become_user: "{{ deploy_user_name }}"
 
 - service: name=fail2ban enabled=yes state=started

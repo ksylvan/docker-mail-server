@@ -3,3 +3,5 @@
   service: name={{ ssh_service_name }} state=restarted
 - name: Restart cron
   service: name={{ cron_service_name }} state=restarted
+- name: Restart ufw
+  service: name=ufw state=restarted
