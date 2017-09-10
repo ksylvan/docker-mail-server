@@ -54,7 +54,7 @@ services:
     container_name: postfixadmin
     domainname: {{ domain_name }}
     hostname: mail
-    # restart: always
+    restart: on-failure
     environment:
       - DBPASS={{ user_password }}
     depends_on:
