@@ -3,6 +3,7 @@ required_packages:
   - ufw
   - fail2ban
   - fail2ban-systemd
+  - python3-inotify
   - ssmtp
   - logwatch
 

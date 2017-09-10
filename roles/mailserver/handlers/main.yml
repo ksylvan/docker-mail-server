@@ -26,3 +26,6 @@
     chdir: ~{{ deploy_user_name }}
   become_user: "{{ deploy_user_name }}"
   when: nginx_is_running
+
+- name: Restart fail2ban
+  service: name=fail2ban state=restarted
