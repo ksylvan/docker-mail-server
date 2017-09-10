@@ -187,6 +187,18 @@
     owner: 991
     group: 991
 
+- name: fail2ban setup for apache_badbots
+  copy:
+    src: files/fail2ban/docker-badbots.conf
+    dest: /etc/fail2ban/jail.d/docker-badbots.conf
+  notify: Restart fail2ban
+
+- name: fail2ban filter for bots that hit the php apps (301)
+  copy:
+    src: files/fail2ban/bots-redirect.conf
+    dest: /etc/fail2ban/filter.d/bots-redirect.conf
+  notify: Restart fail2ban
+
 # Runs as root, not the deploy user this time.
 - name: Start stack if needed
   shell: /usr/local/bin/docker-compose up -d
