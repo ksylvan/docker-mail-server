@@ -2,6 +2,7 @@
 required_packages:
   - ufw
   - fail2ban
+  - fail2ban-systemd
   - ssmtp
   - logwatch
 
