@@ -6,6 +6,8 @@ required_packages:
   - python3-inotify
   - ssmtp
   - logwatch
+  - checkpolicy
+  - policycoreutils-python-utils
 
 optional_packages:
   - mosh
