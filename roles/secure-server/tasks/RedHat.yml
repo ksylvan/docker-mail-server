@@ -6,7 +6,7 @@
 - set_fact:
     firewalld_installed: "{{ tmp.stdout_lines|length() == 0 }}"
 
-- service: name=firewalld enabled=no state=stopped
+- systemd: name=firewalld enabled=no state=stopped masked=yes
   when: firewalld_installed
 
 - name: Install required packages
@@ -37,11 +37,5 @@
     src: files/my_fail2ban.te
     dest: ~{{ deploy_user_name }}/selinux/my_fail2ban.te
   notify: Install SELinux rules
-
-- name: Workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1490629
-  copy:
-    src: files/rc.local
-    dest: /etc/rc.d/rc.local
-    mode: 0755
 
 - service: name=fail2ban enabled=yes state=started
