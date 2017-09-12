@@ -12,13 +12,14 @@ require {
 	type var_lib_t;
 	type var_run_t;
 	class dbus send_msg;
-	class dir { getattr search };
+	class dir { getattr read search };
 	class file { getattr ioctl lock open read relabelfrom relabelto write setattr unlink };
 	class process getpgid;
 }
 
 allow fail2ban_client_t mnt_t:file getattr;
 allow fail2ban_t fail2ban_tmp_t:file relabelfrom;
+allow fail2ban_t mnt_t:dir read;
 allow fail2ban_t mnt_t:file { getattr ioctl open read };
 allow fail2ban_t self:process getpgid;
 allow fail2ban_t sysctl_net_t:dir getattr;
@@ -34,4 +35,6 @@ allow init_t sshd_t:dbus send_msg;
 allow iptables_t var_run_t:file lock;
 allow iptables_t var_run_t:file open;
 allow iptables_t var_run_t:file read;
+allow iptables_t var_lib_t:file read;
+allow iptables_t var_lib_t:file getattr;
 allow sshd_t init_t:dbus send_msg;
