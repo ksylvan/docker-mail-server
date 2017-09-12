@@ -2,7 +2,11 @@ version: '2.1'
 
 services:
   mailserver:
+{% if use_stable_release %}
     image: hardware/mailserver:1.1-stable
+{% else %}
+    image: hardware/mailserver:1.1-latest
+{% endif %}
     container_name: mailserver
     domainname: {{ domain_name }}                  # Mail server A/MX/FQDN & reverse PTR = mail.{{ domain_name }}.
     hostname: mail
@@ -103,11 +107,11 @@ services:
       - /mnt/docker/nginx/sites-enabled:/sites-enabled
       - /mnt/docker/nginx/conf:/conf.d
       - /mnt/docker/nginx/log:/var/log/nginx
-{%if self_signed_certs %}
+{% if self_signed_certs %}
       - /mnt/docker/mail/ssl/selfsigned:/certs
-{%else %}
+{% else %}
       - /mnt/docker/nginx/certs:/certs
-{%endif %}
+{% endif %}
       - /mnt/docker/www:/www
     depends_on:
       - mailserver

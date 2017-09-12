@@ -53,6 +53,9 @@ prompt_with_default()
   eval "$2=\${ans:-\$__def}"
 }
 
+use_stable_release=true
+prompt_with_default "Use stable release (false means use latest)" use_stable_release -stored
+
 domain_name=domain.com
 prompt_with_default "Top level domain name" domain_name -stored
 
@@ -96,7 +99,7 @@ echo "If you need to change them, you'll need to connect to DB."
 echo ""
 
 for i in domain_name deploy_user_name admin_email timezone \
-  self_signed_certs pgp_encrypt_emails
+  self_signed_certs pgp_encrypt_emails use_stable_release
 do
   echo "$i: $(eval echo \$$i)" >> $tmp_vars
 done
