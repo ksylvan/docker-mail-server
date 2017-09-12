@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   mailserver:
-    image: hardware/mailserver:1.1-latest
+    image: hardware/mailserver:1.1-stable
     container_name: mailserver
     domainname: {{ domain_name }}                  # Mail server A/MX/FQDN & reverse PTR = mail.{{ domain_name }}.
     hostname: mail
