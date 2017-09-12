@@ -5,3 +5,11 @@
   service: name={{ cron_service_name }} state=restarted
 - name: Restart fail2ban
   service: name=fail2ban state=restarted
+- name: Install SELinux rules
+  shell: |
+    checkmodule -M -m -o my_fail2ban.mod my_fail2ban.te
+    semodule_package -o my_fail2ban.pp -m my_fail2ban.mod
+    sudo semodule -i my_fail2ban.pp
+  args:
+    chdir: ~{{ deploy_user_name }}/selinux
+  become_user: "{{ deploy_user_name }}"

@@ -36,15 +36,12 @@
   copy:
     src: files/my_fail2ban.te
     dest: ~{{ deploy_user_name }}/selinux/my_fail2ban.te
+  notify: Install SELinux rules
 
-- name: Compile and install SELinux fail2ban module
-  shell: |
-    checkmodule -M -m -o my_fail2ban.mod my_fail2ban.te
-    semodule_package -o my_fail2ban.pp -m my_fail2ban.mod
-    sudo semodule -i my_fail2ban.pp
-  args:
-    chdir: ~{{ deploy_user_name }}/selinux
-    creates: ~{{ deploy_user_name }}/selinux/my_fail2ban.pp
-  become_user: "{{ deploy_user_name }}"
+- name: Workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1490629
+  copy:
+    src: files/rc.local
+    dest: /etc/rc.d/rc.local
+    mode: 0755
 
 - service: name=fail2ban enabled=yes state=started
