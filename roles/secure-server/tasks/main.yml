@@ -25,7 +25,9 @@
     dest: /etc/hosts
     block: |
       {% for item in ansible_all_ipv4_addresses %}
+      {% if not item|match("^172\.") %}
       {{ item }} {{ domain_name }}
+      {% endif %}
       {% endfor %}
     marker: "# {mark} ANSIBLE MANAGED"
 

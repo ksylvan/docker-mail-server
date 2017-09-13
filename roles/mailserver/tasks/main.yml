@@ -46,6 +46,20 @@
   with_items:
   - nginx/sites-enabled
   - nginx/conf
+  - nginx/log
+
+- name: See if nginx access log exists
+  stat: path=/mnt/docker/nginx/log/access.log
+  register: access_log
+  changed_when: false
+
+- name: dummy log file for fail2ban startup
+  file:
+    path: /mnt/docker/nginx/log/access.log
+    state: touch
+    owner: 991
+    group: 991
+  when: not access_log.stat.exists
 
 - name: Set up robots global file (serves /robots.txt)
   copy:
