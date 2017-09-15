@@ -136,7 +136,8 @@
     changed_when: false
 
   # now create files with template
-  - template:
+  - name: Update web site text files
+    template:
       src: www/{{ domain_name }}/{{ item }}
       dest: /mnt/docker/www/{{ item }}
       owner: 991
@@ -144,7 +145,8 @@
     with_items: "{{ web_text_files.stdout_lines }}"
 
   # Copy the binary files
-  - copy:
+  - name: Update web site binary files
+    copy:
       src: www/{{ domain_name }}/{{ item }}
       dest: /mnt/docker/www/{{ item }}
       owner: 991
@@ -152,7 +154,8 @@
     with_items: "{{ web_binary_files.stdout_lines }}"
 
   # Now for the website nginx config
-  - template:
+  - name: Set up the nginx config
+    template:
       src: files/nginx/www-files.conf
       dest: /mnt/docker/nginx/sites-enabled/www.conf
       owner: 991

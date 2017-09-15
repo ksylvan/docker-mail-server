@@ -6,6 +6,9 @@
 - set_fact:
     firewalld_installed: "{{ tmp.stdout_lines|length() == 0 }}"
 
+- name: Update all packages
+  dnf: name='*' state=latest
+
 - systemd: name=firewalld enabled=no state=stopped masked=yes
   when: firewalld_installed
 
