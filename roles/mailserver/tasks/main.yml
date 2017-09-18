@@ -87,8 +87,12 @@
   local_action: shell ls www/{{ domain_name }} 2>/dev/null || true
   register: www_dir
   changed_when: false
+  tags:
+    - always
 - set_fact:
     website_setup: "{{ www_dir.stdout_lines|length() > 0 }}"
+  tags:
+    - always
 
 - name: Set up www site as Contact form.
   template:
@@ -166,6 +170,8 @@
   - set_fact:
       contact_form_postfix: "contact"
   when: website_setup
+  tags:
+    - website
 
 - name: contact form config directory
   file:

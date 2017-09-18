@@ -123,6 +123,16 @@ create an alterate setup:
 Note that files placed in `www/` are ignored by git and will have
 to be backed up.
 
+### Ansible task tags for website setup
+
+The website setup tasks are tagged with `website`.
+
+To run *only* deploy web site files, run this:
+
+    ANSIBLE_OPTS='--tags=website' make -e mailserver
+
+
+
 ## Redeploying, starting over.
 
 On your control host, the first time you run this, it will run `./bin/setup`

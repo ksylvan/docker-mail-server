@@ -1,7 +1,8 @@
 # Makefile for mail server setup
 #
 .PHONY: all bootstrap mailserver reset clean \
-	edit edit_secrets save help setup rebootstrap do
+	edit edit_secrets save help setup rebootstrap do \
+	noweb web
 
 USER_VAR = deploy_user_name
 VAR_FILE = group_vars/all/vars.yml
@@ -36,11 +37,21 @@ help:
 	@echo "edit - run EDITOR (default vi) on variables file."
 	@echo "edit_secrets - decrypt, run EDITOR on secrets file, then encrypt."
 	@echo "save - save variables and inventory in backup/domain-YYYYMMDD-hhmm.tgz"
+	@echo "noweb - run the mailserver setup, exclude web site setup."
+	@echo "web - deploy the web site files only."
 	@echo "help - print this message."
 
 mailserver:
 	@echo "Running playbooks using $(DEPLOY_USER) user"
-	ansible-playbook -u $(DEPLOY_USER) mailserver.yml
+	ansible-playbook $(ANSIBLE_OPTS) -u $(DEPLOY_USER) mailserver.yml
+
+# noweb - mailserver setup, exclude web site setup
+noweb:
+	@ANSIBLE_OPTS='--skip-tags=website' make -e mailserver
+
+# web - deploy web site only
+web:
+	@ANSIBLE_OPTS='--tags=website' make -e mailserver
 
 # bootstrap sets up a secure debian server
 bootstrap:
