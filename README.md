@@ -127,11 +127,15 @@ to be backed up.
 
 The website setup tasks are tagged with `website`.
 
-To run *only* deploy web site files, run this:
+To *only* deploy web site files, run this:
 
-    ANSIBLE_OPTS='--tags=website' make -e mailserver
+    make web
 
+To run the `mailserver` playbook but skip web site deployment:
 
+    make noweb
+
+Run `make help` for a quick explanation of all `Makefile` tasks.
 
 ## Redeploying, starting over.
 
@@ -149,8 +153,6 @@ base variables and want to push those changes to your server.
 If you want to make changes to your secrets (e.g. change passwords),
 use `make edit_secrets`. This task decrypts and re-encrypts your secrets
 using `ansible-vault`.
-
-Run `make help` for a quick explanation of all `Makefile` tasks.
 
 ## User password hashes
 
