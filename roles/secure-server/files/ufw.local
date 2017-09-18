@@ -1,0 +1,6 @@
+# Fail2Ban action configuration file for ufw - local modification
+#
+
+[Init]
+# Use deny instead of reject
+blocktype = deny

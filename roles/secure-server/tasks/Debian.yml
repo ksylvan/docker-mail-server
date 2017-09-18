@@ -21,3 +21,8 @@
 
 - name: Adjust APT update intervals
   copy: src=files/apt_periodic dest=/etc/apt/apt.conf.d/10periodic
+
+- name: Fix blocktype for default ufw action to be deny
+  copy: src=files/ufw.local dest=/etc/fail2ban/action.d/ufw.local
+  notify:
+  - Restart fail2ban
