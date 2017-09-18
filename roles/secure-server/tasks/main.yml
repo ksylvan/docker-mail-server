@@ -81,10 +81,6 @@
               state=present
   notify: Restart ssh
 
-- name: Install ufw action for fail2ban
-  copy: src=files/ufw-action.conf dest=/etc/fail2ban/action.d/ufw.conf
-  notify: Restart fail2ban
-
 - name: Make fail2ban use ufw as default action
   copy: src=files/jail.local dest=/etc/fail2ban/jail.local
   notify: Restart fail2ban

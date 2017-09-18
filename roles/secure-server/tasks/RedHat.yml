@@ -23,6 +23,10 @@
 - name: Update all packages
   dnf: state=latest name='*'
 
+- name: Install ufw action for fail2ban for Redhat
+  copy: src=files/ufw-action.conf dest=/etc/fail2ban/action.d/ufw.conf
+  notify: Restart fail2ban
+
 - name: Set up fail2ban sshd jail on Redhat
   copy:
     src: files/sshd.conf

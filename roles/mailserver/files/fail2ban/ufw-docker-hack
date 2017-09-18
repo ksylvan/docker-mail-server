@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# simple shell scrip to work around problems with using ufw+docker
+# See https://github.com/moby/moby/issues/4737
+#
+# This script is called by the fail2ban jails that monitor docker services.
+# It uses "ufw" to insert the (ineffective!) rules into the firewall,
+# and in addition makes changes to the DOCKER-USER table to deny the banned
+# IP addresses.
+#
+export PATH=/sbin:/usr/sbin:$PATH
+
+case "$1" in
+  ban)
+    ufw insert 1 deny from "$2" to any
+    iptables -I DOCKER-USER -p tcp -s "$2" -j DROP
+    ;;
+  unban)
+    ufw delete deny from "$2" to any
+    iptables -D DOCKER-USER -p tcp -s "$2" -j DROP
+    ;;
+  *)
+    echo "ERROR: unknown action: $1"
+    ;;
+esac
