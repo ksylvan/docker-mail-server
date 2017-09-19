@@ -53,7 +53,7 @@ noweb:
 web:
 	@ANSIBLE_OPTS='--tags=website' make -e mailserver
 
-# bootstrap sets up a secure debian server
+# bootstrap sets up a secure server
 bootstrap:
 	@if [ -r .bootstrap_done ]; then \
 	  ansible-playbook -u $(DEPLOY_USER) bootstrap.yml; \

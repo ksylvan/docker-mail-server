@@ -15,12 +15,15 @@
   notify:
   - restart stack
 
-- name: Is nginx running?
-  shell: "(docker ps | grep nginx) || true"
-  register: tmp
-  changed_when: false
-- set_fact:
-    nginx_is_running: "{{ tmp.stdout_lines|length() > 0 }}"
+- block:
+  - name: Is nginx running?
+    shell: "(docker ps | grep nginx) || true"
+    register: tmp
+    changed_when: false
+  - set_fact:
+      nginx_is_running: "{{ tmp.stdout_lines|length() > 0 }}"
+  tags:
+    - always
 
 - name: New systemd unit to run docker-compose
   template:
@@ -83,14 +86,13 @@
   notify:
   - restart nginx
 
-- name: Web files here?
-  local_action: shell ls www/{{ domain_name }} 2>/dev/null || true
-  register: www_dir
-  changed_when: false
-  tags:
-    - always
-- set_fact:
-    website_setup: "{{ www_dir.stdout_lines|length() > 0 }}"
+- block:
+  - name: Web files here?
+    local_action: shell ls www/{{ domain_name }} 2>/dev/null || true
+    register: www_dir
+    changed_when: false
+  - set_fact:
+      website_setup: "{{ www_dir.stdout_lines|length() > 0 }}"
   tags:
     - always
 
@@ -104,9 +106,14 @@
   - restart nginx
   when: not website_setup
 
-# For the contact form POST action
-- set_fact:
-    contact_form_postfix: ""
+- name: Set up the contact_form_postfix
+  block:
+  - set_fact: contact_form_postfix=""
+  # In the next configuration, contact POST action goes to /contact.
+  - set_fact: contact_form_postfix="contact"
+    when: website_setup
+  tags:
+    - always
 
 - name: Set up www site with files.
   block:
@@ -166,9 +173,6 @@
       group: 991
     notify:
     - restart nginx
-  # In this configuration, the contact POST action needs to go to /contact.
-  - set_fact:
-      contact_form_postfix: "contact"
   when: website_setup
   tags:
     - website
@@ -243,3 +247,5 @@
   args:
     chdir: ~{{ deploy_user_name }}
   when: not nginx_is_running
+  tags:
+    - always
