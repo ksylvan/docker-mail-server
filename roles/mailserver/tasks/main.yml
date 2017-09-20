@@ -110,7 +110,7 @@
   block:
   - set_fact: contact_form_postfix=""
   # In the next configuration, contact POST action goes to /contact.
-  - set_fact: contact_form_postfix="contact"
+  - set_fact: contact_form_postfix="contact/"
     when: website_setup
   tags:
     - always
@@ -187,6 +187,8 @@
   with_items:
   - config
   - ssmtp
+  tags:
+    - always
 
 - name: contact config files
   template:
@@ -201,6 +203,8 @@
   notify:
   - restart contact
   - restart nginx
+  tags:
+    - always
 
 - name: rainloop plugin directory
   file:
