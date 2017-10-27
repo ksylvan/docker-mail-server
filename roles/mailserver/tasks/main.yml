@@ -86,6 +86,15 @@
   notify:
   - restart nginx
 
+- name: Top-level naked domain name redirect to www site
+  template:
+    src: files/nginx/top-level.conf
+    dest: /mnt/docker/nginx/sites-enabled/{{ domain_name }}.conf
+    owner: 991
+    group: 991
+  notify:
+  - restart nginx
+
 - block:
   - name: Web files here?
     local_action: shell ls www/{{ domain_name }} 2>/dev/null || true
