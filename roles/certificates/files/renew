@@ -14,9 +14,9 @@ then
 else
   if [ $DAYS -lt $LIMIT ]; then
     cd /home/{{ deploy_user_name }}
-    su {{ deploy_user_name }} -c "docker-compose stop nginx" > $msg 2>&1
+    docker-compose stop nginx > $msg 2>&1
     $c renew >> $msg 2>&1
-    su {{ deploy_user_name }} -c "docker-compose start nginx" >> $msg 2>&1
+    docker-compose start nginx >> $msg 2>&1
     SUBJECT="Cert Renewal Attempt (Valid for $DAYS days)"
   else
     SUBJECT="Cert is still valid (for $DAYS days)"
