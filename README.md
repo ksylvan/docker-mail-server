@@ -106,11 +106,14 @@ to change their mailbox passwords.
 You can add postfix customizations to `/mnt/docker/mail/postfix/custom.conf` on your mailserver
 machine and restart the stack.
 
+By default, the setup will install an initial `custom.conf` that allows unauthenticated mail
+to be relayed from your other containers.
+
 More info about postfix overrides here: https://github.com/hardware/mailserver#override-postfix-configuration
 
 ## Web Site files
 
-The site at `www.yourdomain.tld` simply directs to the `contact` app
+By default, your top level web site `www.yourdomain.tld` simply directs to the `contact` app
 which renders a simple Contact Form as the front page of your your domain.
 
 If you place files in `www/yourdomain.tld/`, the Ansible playbook will
@@ -122,6 +125,21 @@ create an alterate setup:
 
 Note that files placed in `www/` are ignored by git and will have
 to be backed up.
+
+## Wordpress Install
+
+Alternatively, you can specify in the initial setup that you want to use Wordpress.
+
+```
+Use Wordpress as www site [false]: true
+```
+
+In this case, we use the official `wordpress` Docker image. You can add
+customizations for PHP (e.g. setting `upload_max_filesize`) by modifying
+`/mnt/docker/php/custom.ini`.
+
+Your wordpress files will end up in `/mnt/docker/wordpress` and wordpress will
+use the `wordpress` database in the `mariadb` server.
 
 ### Ansible task tags for website setup
 

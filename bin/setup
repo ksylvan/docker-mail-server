@@ -93,13 +93,16 @@ prompt_with_default "Use self-signed certs (use for testing)" self_signed_certs 
 pgp_encrypt_emails=false
 prompt_with_default "PGP Encrypt Emails" pgp_encrypt_emails -stored
 
+www_is_wordpress=false
+prompt_with_default "Use Wordpress as www site" www_is_wordpress -stored
+
 echo ""
 echo "NOTE: When DB is initialized, database passwords are set."
 echo "If you need to change them, you'll need to connect to DB."
 echo ""
 
 for i in domain_name deploy_user_name admin_email timezone \
-  self_signed_certs pgp_encrypt_emails use_stable_release
+  self_signed_certs pgp_encrypt_emails use_stable_release www_is_wordpress
 do
   echo "$i: $(eval echo \$$i)" >> $tmp_vars
 done
