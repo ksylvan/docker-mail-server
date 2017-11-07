@@ -79,6 +79,23 @@ services:
       - mailserver
       - mariadb
 
+{% if www_is_wordpress %}
+  # Wordpress container setup
+  wordpress:
+    image: wordpress:4-php7.1-fpm-alpine
+    container_name: wordpress
+    depends_on:
+      - mariadb
+    restart: on-failure
+    links:
+      - mariadb:mysql
+    volumes:
+      - /mnt/docker/wordpress:/var/www/html
+      - /mnt/docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      - WORDPRESS_DB_PASSWORD={{ db_password }}
+
+{% else %}
   # Contact Form (Optional)
   # https://github.com/ksylvan/Simple-PHP-Contact-Form
   contact:
@@ -91,6 +108,7 @@ services:
       - /mnt/docker/contact/index.php:/contact/index.php
     depends_on:
       - mailserver
+{% endif %}
 
   # Web server
   # https://github.com/Wonderfall/dockerfiles/tree/master/nginx
@@ -113,11 +131,18 @@ services:
       - /mnt/docker/nginx/certs:/certs
 {% endif %}
       - /mnt/docker/www:/www
+{% if www_is_wordpress %}
+      - /mnt/docker/wordpress:/wordpress
+{% endif %}
     depends_on:
       - mailserver
       - postfixadmin
       - rainloop
+{% if www_is_wordpress %}
+      - wordpress
+{% else %}
       - contact
+{% endif %}
 
   # Database
   # https://github.com/docker-library/mariadb

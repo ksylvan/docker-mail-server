@@ -39,6 +39,17 @@
     state: directory
     recurse: yes
 
+- name: See if postfix custom file exists
+  stat:
+    path: /mnt/docker/mail/postfix/custom.conf
+  register: postfix_custom
+- name: Set custom postix config for RELAY_NETWORKS if it does not exist
+  copy:
+    dest: /mnt/docker/mail/postfix/custom.conf
+    src: files/mailserver/custom.conf
+  when: not postfix_custom.stat.exists
+  notify: restart mailserver
+
 - name: nginx directories
   file:
     path: /mnt/docker/{{ item }}
@@ -96,6 +107,39 @@
   - restart nginx
 
 - block:
+  - name: Set up wordpress directory
+    file:
+      path: /mnt/docker/{{ item }}
+      state: directory
+      recurse: yes
+      owner: 82
+      group: 82
+    with_items:
+    - wordpress
+    - php
+  - name: Set up wordpress nginx site
+    template:
+      src: files/nginx/www-wordpress.conf
+      dest: /mnt/docker/nginx/sites-enabled/wordpress.conf
+      owner: 991
+      group: 991
+    notify:
+    - restart nginx
+    - restart wordpress
+  - name: See if php custom file exists
+    stat:
+      path: /mnt/docker/php/custom.ini
+    register: php_custom
+  - name: Set up empty custom.ini for php modifications
+    file:
+      path: /mnt/docker/php/custom.ini
+      state: touch
+      owner: 82
+      group: 82
+    when: not php_custom.stat.exists
+  when: www_is_wordpress
+
+- block:
   - name: Web files here?
     local_action: shell ls www/{{ domain_name }} 2>/dev/null || true
     register: www_dir
@@ -113,7 +157,7 @@
     group: 991
   notify:
   - restart nginx
-  when: not website_setup
+  when: not website_setup and not www_is_wordpress
 
 - name: Set up the contact_form_postfix
   block:
@@ -182,38 +226,40 @@
       group: 991
     notify:
     - restart nginx
-  when: website_setup
+  when: website_setup and not www_is_wordpress
   tags:
     - website
 
-- name: contact form config directory
-  file:
-    path: /mnt/docker/contact/{{ item }}
-    state: directory
-    recurse: yes
-    owner: 991
-    group: 991
-  with_items:
-  - config
-  - ssmtp
-  tags:
-    - always
+- block:
+  - name: contact form config directory
+    file:
+      path: /mnt/docker/contact/{{ item }}
+      state: directory
+      recurse: yes
+      owner: 991
+      group: 991
+    with_items:
+    - config
+    - ssmtp
+    tags:
+      - always
 
-- name: contact config files
-  template:
-    src: files/contact/{{ item }}
-    dest: /mnt/docker/contact/{{ item }}
-    owner: 991
-    group: 991
-  with_items:
-  - config/config.php
-  - ssmtp/ssmtp.conf
-  - index.php
-  notify:
-  - restart contact
-  - restart nginx
-  tags:
-    - always
+  - name: contact config files
+    template:
+      src: files/contact/{{ item }}
+      dest: /mnt/docker/contact/{{ item }}
+      owner: 991
+      group: 991
+    with_items:
+    - config/config.php
+    - ssmtp/ssmtp.conf
+    - index.php
+    notify:
+    - restart contact
+    - restart nginx
+    tags:
+      - always
+  when: not www_is_wordpress
 
 - name: rainloop plugin directory
   file:

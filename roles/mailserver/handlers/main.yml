@@ -29,3 +29,10 @@
 
 - name: Restart fail2ban
   service: name=fail2ban state=restarted
+
+- name: restart wordpress
+  shell: docker-compose stop wordpress; docker-compose up -d wordpress
+  args:
+    chdir: ~{{ deploy_user_name }}
+  become_user: "{{ deploy_user_name }}"
+  when: nginx_is_running
