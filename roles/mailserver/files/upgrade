@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd ~{{ deploy_user_name }}
+docker-compose pull
+docker-compose up -d
