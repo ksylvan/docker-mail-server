@@ -15,6 +15,12 @@
   notify:
   - restart stack
 
+- name: Set up upgrade script
+  template:
+    src: files/upgrade
+    dest: /usr/local/bin/upgrade
+    mode: 0755
+
 - block:
   - name: Is nginx running?
     shell: "(docker ps | grep nginx) || true"

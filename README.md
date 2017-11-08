@@ -155,6 +155,58 @@ To run the `mailserver` playbook but skip web site deployment:
 
 Run `make help` for a quick explanation of all `Makefile` tasks.
 
+## Upgrades
+
+You can get security and bug fixes by updating your images periodically.
+
+The `/usr/local/bin/upgrade` is a helper script that simply does:
+
+```
+docker-compose pull
+docker-compose up -d
+```
+
+Simply `ssh deploy@yourdomain.tld` and run the script:
+
+```
+$ upgrade
+Pulling redis (redis:3.2-alpine)...
+3.2-alpine: Pulling from library/redis
+Digest: sha256:8858052e2c0e2ffecc6998b2733e7ffe1ce57998025bf3b373a33073cc1bd92d
+Status: Image is up to date for redis:3.2-alpine
+Pulling mariadb (mariadb:10.1)...
+10.1: Pulling from library/mariadb
+Digest: sha256:6cef4058a2c391dfd621939ecf7dfa325ece33e019011e32b34faae03782b5c9
+Status: Image is up to date for mariadb:10.1
+Pulling mailserver (hardware/mailserver:1.1-latest)...
+1.1-latest: Pulling from hardware/mailserver
+Digest: sha256:a0396ee689ad964bb77312ec80a846f0834cc51322c45ea82700908ad902446b
+Status: Image is up to date for hardware/mailserver:1.1-latest
+Pulling rainloop (hardware/rainloop:latest)...
+latest: Pulling from hardware/rainloop
+Digest: sha256:953d974a7616dfcbf0e1894b75065633a34562e2d5e77807e7316db5004d4727
+Status: Image is up to date for hardware/rainloop:latest
+Pulling contact (kayvan/contact-form:latest)...
+latest: Pulling from kayvan/contact-form
+Digest: sha256:7de5ada7dc950352df73f2f2bc704a7af53ffabf859777065b4b6c64d9f3588f
+Status: Image is up to date for kayvan/contact-form:latest
+Pulling postfixadmin (hardware/postfixadmin:latest)...
+latest: Pulling from hardware/postfixadmin
+Digest: sha256:b3473b126a527e5fe1899ace260292f3fa787753af43390831fe9d616e6b9900
+Status: Image is up to date for hardware/postfixadmin:latest
+Pulling nginx (wonderfall/boring-nginx:latest)...
+latest: Pulling from wonderfall/boring-nginx
+Digest: sha256:9eb46e5c893db961d50a8178bd47aa071c38d1da424fe453b11f4c6650b37e76
+Status: Image is up to date for wonderfall/boring-nginx:latest
+redis is up-to-date
+mariadb is up-to-date
+mailserver is up-to-date
+postfixadmin is up-to-date
+contact is up-to-date
+rainloop is up-to-date
+nginx is up-to-date
+```
+
 ## Redeploying, starting over.
 
 On your control host, the first time you run this, it will run `./bin/setup`
