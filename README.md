@@ -6,8 +6,8 @@ Ansible Playbooks for setting up a secured ssh, mail, and web server.
 
 The scripts and playbooks here track https://github.com/hardware/mailserver
 
-- `master` is in step with the latest stable branch (currently `v1.1-stable`)
-- `develop` is bleeding edge (docker tag `v1.1-latest`, git branch `master`)
+- Set `use_stable_release` to true (default) to use stable branch (currently `v1.1-stable`)
+- Set `use_stable_release` to false for bleeding edge (docker tag `v1.1-latest`, git branch `master`)
 
 ## Quick Start
 
