@@ -10,7 +10,7 @@ services:
     container_name: mailserver
     domainname: {{ domain_name }}                  # Mail server A/MX/FQDN & reverse PTR = mail.{{ domain_name }}.
     hostname: mail
-    # restart: always
+    restart: on-failure
     # extra_hosts:                          - Required for external database (on other server or for local databases on host without docker)
     #  - "mariadb:xx.xx.xx.xx"              - Replace with IP address of MariaDB server
     #  - "redis:xx.xx.xx.xx"                - Replace with IP address of Redis server
@@ -72,7 +72,7 @@ services:
   rainloop:
     image: hardware/rainloop
     container_name: rainloop
-    # restart: always
+    restart: on-failure
     volumes:
       - /mnt/docker/rainloop:/rainloop/data
     depends_on:
@@ -101,13 +101,31 @@ services:
   contact:
     image: kayvan/contact-form
     container_name: contact
-    # restart: always
+    restart: on-failure
     volumes:
       - /mnt/docker/contact/config:/contact/config
       - /mnt/docker/contact/ssmtp:/etc/ssmtp
       - /mnt/docker/contact/index.php:/contact/index.php
     depends_on:
       - mailserver
+{% endif %}
+
+{% if use_opencart %}
+  # Opencart container setup
+  opencart:
+    image: bitnami/opencart:3
+    container_name: opencart
+    restart: on-failure
+    depends_on:
+      - mariadb
+    restart: on-failure
+    volumes:
+      - /mnt/docker/opencart:/bitnami
+    environment:
+      - MARIADB_PASSWORD={{ db_password }}
+      - OPENCART_HOST=store.{{ domain_name }}
+      - OPENCART_USERNAME=opencart
+      - OPENCART_PASSWORD=changeThis
 {% endif %}
 
   # Web server
@@ -117,7 +135,7 @@ services:
   nginx:
     image: wonderfall/boring-nginx
     container_name: nginx
-    # restart: always
+    restart: on-failure
     ports:
       - "80:8000"
       - "443:4430"
@@ -138,6 +156,13 @@ services:
       - mailserver
       - postfixadmin
       - rainloop
+{% if use_opencart %}
+      - opencart
+{% endif %}
+    depends_on:
+      - mailserver
+      - postfixadmin
+      - rainloop
 {% if www_is_wordpress %}
       - wordpress
 {% else %}
@@ -150,7 +175,7 @@ services:
   mariadb:
     image: mariadb:10.1
     container_name: mariadb
-    # restart: always
+    restart: on-failure
     # Info : These variables are ignored when the volume already exists (databases created before).
     environment:
       - MYSQL_ROOT_PASSWORD={{ db_password }}
@@ -166,7 +191,7 @@ services:
   redis:
     image: redis:3.2-alpine
     container_name: redis
-    # restart: always
+    restart: on-failure
     command: redis-server --appendonly yes
     sysctls:
       - net.core.somaxconn=1024

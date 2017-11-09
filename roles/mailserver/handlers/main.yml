@@ -36,3 +36,10 @@
     chdir: ~{{ deploy_user_name }}
   become_user: "{{ deploy_user_name }}"
   when: nginx_is_running
+
+- name: restart opencart
+  shell: docker-compose stop opencart; docker-compose up -d opencart
+  args:
+    chdir: ~{{ deploy_user_name }}
+  become_user: "{{ deploy_user_name }}"
+  when: nginx_is_running

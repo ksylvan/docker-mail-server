@@ -4,3 +4,4 @@ user_password: postf1x001a9
 self_signed_certs: false
 use_stable_release: true
 www_is_wordpress: false
+use_opencart: false

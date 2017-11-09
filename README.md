@@ -31,6 +31,8 @@ represents your IP address):
 | webmail | IN | CNAME | any | mail.domain.tld. |
 | spam | IN | CNAME | any | mail.domain.tld. |
 
+If using `opencart`, also add a CNAME entry for `store`.
+
 - Create a recent Debian or Fedora server, using whatever process you choose.
   I created a Debian 9 (Stretch) server in the cloud. Also tested with
   a Fedora 26 Server instance.

@@ -146,6 +146,24 @@
   when: www_is_wordpress
 
 - block:
+  - name: Set up opencart directory
+    file:
+      path: /mnt/docker/opencart
+      state: directory
+      recurse: yes
+      mode: 0777
+  - name: Set up opencart nginx site
+    template:
+      src: files/nginx/www-opencart.conf
+      dest: /mnt/docker/nginx/sites-enabled/opencart.conf
+      owner: 991
+      group: 991
+    notify:
+    - restart nginx
+    - restart opencart
+  when: use_opencart
+
+- block:
   - name: Web files here?
     local_action: shell ls www/{{ domain_name }} 2>/dev/null || true
     register: www_dir
