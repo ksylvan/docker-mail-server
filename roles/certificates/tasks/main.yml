@@ -2,17 +2,27 @@
 - name: Set up the mount path
   file: path=/mnt/docker/nginx/certs state=directory recurse=yes
 
+- name: set of hostnames
+  set_fact:
+    ssl_domains: >
+      -d mail.{{ domain_name }}
+      -d webmail.{{ domain_name }}
+      -d postfixadmin.{{ domain_name }}
+      -d spam.{{ domain_name }}
+      -d www.{{ domain_name }}
+
+- name: Add store to the list
+  set_fact:
+    ssl_domains: "{{ ssl_domains | trim() }} -d store.{{ domain_name }}"
+  when: use_opencart
+
 - name: Generate certs
   shell: >
     docker run --rm -v /mnt/docker/nginx/certs:/etc/letsencrypt
     -p 80:80 -p 443:443 kayvan/letsencrypt
     certonly --standalone --rsa-key-size 4096 --agree-tos
     -m {{ admin_email }}
-    -d mail.{{ domain_name }}
-    -d webmail.{{ domain_name }}
-    -d postfixadmin.{{ domain_name }}
-    -d spam.{{ domain_name }}
-    -d www.{{ domain_name }}
+    {{ ssl_domains }}
     -d {{ domain_name }}
   args:
     creates: /mnt/docker/nginx/certs/live/mail.{{ domain_name }}
