@@ -126,6 +126,8 @@ services:
       - OPENCART_HOST=store.{{ domain_name }}
       - OPENCART_USERNAME=opencart
       - OPENCART_PASSWORD=changeThis
+      - SMTP_HOST=mailserver
+      - SMTP_PORT=25
 {% endif %}
 
   # Web server
