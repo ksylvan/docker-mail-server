@@ -16,7 +16,7 @@
     ssl_domains: "{{ ssl_domains | trim() }} -d store.{{ domain_name }}"
   when: use_opencart
 
-- name: Add store to the list
+- name: Add poweradmin to the list
   set_fact:
     ssl_domains: "{{ ssl_domains | trim() }} -d poweradmin.{{ domain_name }}"
   when: use_poweradmin

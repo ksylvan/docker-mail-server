@@ -128,8 +128,8 @@ services:
       - OPENCART_PASSWORD=changeThis
       - SMTP_HOST=mailserver 
       - SMTP_PORT=25 
-      - SMTP_USER=opencart@optimcloud.com 
-      - SMTP_PASSWORD=opencart
+      - SMTP_USER=username@domain.ext
+      - SMTP_PASSWORD=password
 {% endif %}
 
 {% if use_poweradmin %}
