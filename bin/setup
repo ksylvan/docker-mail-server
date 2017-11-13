@@ -99,13 +99,16 @@ prompt_with_default "Use Wordpress as www site" www_is_wordpress -stored
 use_opencart=false
 prompt_with_default "Use Opencart as ecommerce site" use_opencart -stored
 
+use_poweradmin=false
+prompt_with_default "Use PowerDNS / Poweradmin as DNS site" use_poweradmin -stored
+
 echo ""
 echo "NOTE: When DB is initialized, database passwords are set."
 echo "If you need to change them, you'll need to connect to DB."
 echo ""
 
 for i in domain_name deploy_user_name admin_email timezone \
-  self_signed_certs pgp_encrypt_emails use_stable_release www_is_wordpress use_opencart
+  self_signed_certs pgp_encrypt_emails use_stable_release www_is_wordpress use_opencart use_poweradmin
 do
   echo "$i: $(eval echo \$$i)" >> $tmp_vars
 done
