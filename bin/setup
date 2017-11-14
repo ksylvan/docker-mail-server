@@ -13,11 +13,13 @@ if [ ! -d group_vars/all ]; then
 fi
 
 tmp_vars=/tmp/tmpvars$$
+export var_list=/tmp/var_list$$
+export vault_var_list=/tmp/vault_list$$
 cp bin/all.yml $tmp_vars
 
 cleanup()
 {
-  rm -f $tmp_vars
+  rm -f $tmp_vars $var_list $vault_var_list
   if [ -r $VAULT_PASS ]; then
     ansible-vault encrypt $VAULT_VARS
   fi
@@ -26,7 +28,7 @@ cleanup()
 trap cleanup EXIT
 
 if [ -r $VAULT_VARS -a -r $VAULT_PASS ]; then
-  ansible-vault decrypt $VAULT_VARS
+  ansible-vault decrypt $VAULT_VARS > /dev/null 2>&1
 fi
 
 get_stored_default()
@@ -34,9 +36,11 @@ get_stored_default()
   case $1 in
     vault_*)
       __r=$(grep "$1" $VAULT_VARS 2>/dev/null| awk '{print $2}' )
+      echo $1 >> $vault_var_list
       ;;
     *)
       __r=$(grep "$1" $VARS 2>/dev/null| awk '{print $2}')
+      echo $1 >> $var_list
       ;;
   esac
   __r=$(echo $__r | sed "s/^\([\"']\)\(.*\)\1\$/\2/g")
@@ -99,29 +103,38 @@ prompt_with_default "Use Wordpress as www site" www_is_wordpress -stored
 use_opencart=false
 prompt_with_default "Use Opencart as ecommerce site" use_opencart -stored
 
+if [ $use_opencart != "false" ]; then
+  opencart_user=opencart
+  prompt_with_default "Opencart admin user name" opencart_user -stored
+  vault_opencart_password='op3Nc1rT'
+  prompt_with_default "Opencart admin initial password" vault_opencart_password -stored
+  opencart_from=postmaster@${domain_name}
+  prompt_with_default "Opencart admin mailbox" opencart_from -stored
+  echo ""
+  echo "NOTE: The $opencart_from address needs to be able to receive emails."
+  echo "Use postfixadmin to set up the opencart send/receive mailbox."
+  echo ""
+fi
+
 echo ""
 echo "NOTE: When DB is initialized, database passwords are set."
 echo "If you need to change them, you'll need to connect to DB."
 echo ""
 
-for i in domain_name deploy_user_name admin_email timezone \
-  self_signed_certs pgp_encrypt_emails use_stable_release www_is_wordpress use_opencart
-do
+for i in $(cat $var_list); do
   echo "$i: $(eval echo \$$i)" >> $tmp_vars
 done
 
 vault_root_encrypted_password=$(./bin/mkpasswd "$vault_root_password")
 if [ $? -ne 0 ]; then exit $?; fi
+echo vault_root_encrypted_password >> $vault_var_list
+
 vault_deploy_encrypted_password=$(./bin/mkpasswd "$vault_deploy_password")
+if [ $? -ne 0 ]; then exit $?; fi
+echo vault_deploy_encrypted_password >> $vault_var_list
 
 echo "---" > $VAULT_VARS
-for i in root deploy; do
-  v="vault_${i}_password"; e="vault_${i}_encrypted_password"
-  for j in $v $e; do
-    echo "$j: $(eval echo \\\'\"\$$j\"\\\')" >> $VAULT_VARS
-  done
-done
-for i in vault_db_password vault_user_password vault_rspamd_password; do
+for i in $(cat $vault_var_list); do
   echo "$i: $(eval echo \\\'\"\$$i\"\\\')" >> $VAULT_VARS
 done
 
