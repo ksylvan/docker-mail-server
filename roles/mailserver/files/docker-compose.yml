@@ -122,12 +122,14 @@ services:
     volumes:
       - /mnt/docker/opencart:/bitnami
     environment:
-      - MARIADB_PASSWORD={{ db_password }}
-      - OPENCART_HOST=store.{{ domain_name }}
-      - OPENCART_USERNAME=opencart
-      - OPENCART_PASSWORD=changeThis
-      - SMTP_HOST=mailserver
-      - SMTP_PORT=25
+      MARIADB_PASSWORD: '{{ db_password }}'
+      OPENCART_HOST: 'store.{{ domain_name }}'
+      OPENCART_USERNAME: '{{ opencart_user }}'
+      OPENCART_PASSWORD: '{{ opencart_password }}'
+      SMTP_HOST: mailserver
+      SMTP_PORT: 25
+      SMTP_USER: '{{ opencart_from }}'
+      SMTP_PASSWORD: 'should_be_ignored'
 {% endif %}
 
   # Web server
@@ -161,10 +163,6 @@ services:
 {% if use_opencart %}
       - opencart
 {% endif %}
-    depends_on:
-      - mailserver
-      - postfixadmin
-      - rainloop
 {% if www_is_wordpress %}
       - wordpress
 {% else %}
