@@ -4,6 +4,7 @@
   ufw: rule=allow port={{ item }} proto=tcp
   with_items:
   - 25
+  - 53
   - 80
   - 110
   - 143

@@ -100,6 +100,9 @@ prompt_with_default "PGP Encrypt Emails" pgp_encrypt_emails -stored
 www_is_wordpress=false
 prompt_with_default "Use Wordpress as www site" www_is_wordpress -stored
 
+use_poweradmin=false
+prompt_with_default "Use PowerDNS / Poweradmin as DNS site" use_poweradmin -stored
+
 use_opencart=false
 prompt_with_default "Use Opencart as ecommerce site" use_opencart -stored
 

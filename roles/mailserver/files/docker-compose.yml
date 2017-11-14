@@ -132,6 +132,29 @@ services:
       SMTP_PASSWORD: 'should_be_ignored'
 {% endif %}
 
+{% if use_poweradmin %}
+  poweradmin:
+    image: secns/pdns
+    container_name: poweradmin
+    restart: on-failure
+    depends_on:
+      - mariadb
+    restart: on-failure
+    links:
+      - mariadb:db
+    volumes:
+      - /mnt/docker/poweradmin:/poweradmin
+    ports:
+    - "53:53"
+    - "53:53/udp"
+    environment:
+    - PDNS_ALLOW_AXFR_IPS=127.0.0.1
+    - PDNS_DISTRIBUTOR_THREADS=3
+    - PDNS_CACHE_TTL=20
+    - PDNS_RECURSIVE_CACHE_TTL=10
+    - DB_ENV_MYSQL_ROOT_PASSWORD={{ db_password }}
+{% endif %}
+
   # Web server
   # https://github.com/Wonderfall/dockerfiles/tree/master/nginx
   # https://nginx.org/
@@ -162,6 +185,9 @@ services:
       - rainloop
 {% if use_opencart %}
       - opencart
+{% endif %}
+{% if use_poweradmin %}
+      - poweradmin
 {% endif %}
 {% if www_is_wordpress %}
       - wordpress

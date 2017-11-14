@@ -16,6 +16,11 @@
     ssl_domains: "{{ ssl_domains | trim() }} -d store.{{ domain_name }}"
   when: use_opencart
 
+- name: Add poweradmin to the list
+  set_fact:
+    ssl_domains: "{{ ssl_domains | trim() }} -d poweradmin.{{ domain_name }}"
+  when: use_poweradmin
+
 - name: Generate certs
   shell: >
     docker run --rm -v /mnt/docker/nginx/certs:/etc/letsencrypt

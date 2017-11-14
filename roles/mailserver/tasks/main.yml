@@ -164,6 +164,24 @@
   when: use_opencart
 
 - block:
+  - name: Set up poweradmin directory
+    file:
+      path: /mnt/docker/poweradmin
+      state: directory
+      recurse: yes
+      mode: 0777
+  - name: Set up poweradmin nginx site
+    template:
+      src: files/nginx/www-poweradmin.conf
+      dest: /mnt/docker/nginx/sites-enabled/poweradmin.conf
+      owner: 991
+      group: 991
+    notify:
+    - restart nginx
+    - restart poweradmin
+  when: use_poweradmin
+
+- block:
   - name: Web files here?
     local_action: shell ls www/{{ domain_name }} 2>/dev/null || true
     register: www_dir

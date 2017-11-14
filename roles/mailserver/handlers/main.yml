@@ -43,3 +43,10 @@
     chdir: ~{{ deploy_user_name }}
   become_user: "{{ deploy_user_name }}"
   when: nginx_is_running
+
+- name: restart poweradmin
+  shell: docker-compose stop poweradmin; docker-compose up -d poweradmin
+  args:
+    chdir: ~{{ deploy_user_name }}
+  become_user: "{{ deploy_user_name }}"
+  when: nginx_is_running
