@@ -6,3 +6,6 @@ use_stable_release: true
 www_is_wordpress: false
 use_opencart: false
 use_poweradmin: false
+opencart_user: opencart
+opencart_password: op3Nc1rT
+opencart_from: admin@{{ domain_name }}

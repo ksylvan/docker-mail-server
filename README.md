@@ -58,8 +58,10 @@ to your DNS, do:
   instructions here: https://github.com/hardware/mailserver/wiki/Postfixadmin-initial-configuration
 
 - Using `postfixadmin`, set up your super-administrator account, then set up your domain,
-  and proceed to set up mailboxes for `admin` and `contact`. Now set up aliases for
-  the following:
+  and proceed to set up mailboxes for `admin` and `contact`. If using `opencart`
+  remember to also set up your `opencart` admin user mailbox.
+
+- Set up aliases for the following:
 
 | ALIAS | MAILBOX |
 | -------- | ----- |

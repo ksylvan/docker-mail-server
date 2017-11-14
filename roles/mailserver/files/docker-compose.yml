@@ -122,14 +122,14 @@ services:
     volumes:
       - /mnt/docker/opencart:/bitnami
     environment:
-      - MARIADB_PASSWORD={{ db_password }}
-      - OPENCART_HOST=store.{{ domain_name }}
-      - OPENCART_USERNAME=opencart
-      - OPENCART_PASSWORD=changeThis
-      - SMTP_HOST=mailserver 
-      - SMTP_PORT=25 
-      - SMTP_USER=username@domain.ext
-      - SMTP_PASSWORD=password
+      MARIADB_PASSWORD: '{{ db_password }}'
+      OPENCART_HOST: 'store.{{ domain_name }}'
+      OPENCART_USERNAME: '{{ opencart_user }}'
+      OPENCART_PASSWORD: '{{ opencart_password }}'
+      SMTP_HOST: mailserver
+      SMTP_PORT: 25
+      SMTP_USER: '{{ opencart_from }}'
+      SMTP_PASSWORD: 'should_be_ignored'
 {% endif %}
 
 {% if use_poweradmin %}
@@ -140,6 +140,8 @@ services:
     depends_on:
       - mariadb
     restart: on-failure
+    links:
+      - mariadb:db
     volumes:
       - /mnt/docker/poweradmin:/poweradmin
     ports:
@@ -150,13 +152,7 @@ services:
     - PDNS_DISTRIBUTOR_THREADS=3
     - PDNS_CACHE_TTL=20
     - PDNS_RECURSIVE_CACHE_TTL=10
-    - DB_ENV_MYSQL_ROOT_PASSWORD=changeme
-    - MARIADB_PASSWORD={{ db_password }}
-    - MYSQL_ROOT_PASSWORD=changeme
-  db:
-    image: mysql
-    environment:
-    - MYSQL_ROOT_PASSWORD=changeme
+    - DB_ENV_MYSQL_ROOT_PASSWORD={{ db_password }}
 {% endif %}
 
   # Web server
@@ -190,17 +186,9 @@ services:
 {% if use_opencart %}
       - opencart
 {% endif %}
-    depends_on:
-      - mailserver
-      - postfixadmin
-      - rainloop
 {% if use_poweradmin %}
       - poweradmin
 {% endif %}
-    depends_on:
-      - mailserver
-      - postfixadmin
-      - rainloop
 {% if www_is_wordpress %}
       - wordpress
 {% else %}
