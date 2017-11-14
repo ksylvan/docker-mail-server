@@ -180,6 +180,24 @@
     - restart nginx
     - restart poweradmin
   when: use_poweradmin
+ 
+- block
+  - name: Set up pritunl directory
+    file:
+      path: /mnt/docker/pritunl
+      state: directory
+      recurse: yes
+      mode: 0777
+  - name: Set up pritunl nginx site
+    template:
+      src: files/nginx/www-pritunl.conf
+      dest: /mnt/docker/nginx/sites-enabled/pritunl.conf
+      owner: 991
+      group: 991
+    notify:
+    - restart nginx
+    - restart pritunl
+  when: use_pritunl
 
 - block:
   - name: Web files here?

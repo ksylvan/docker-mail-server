@@ -155,6 +155,18 @@ services:
     - DB_ENV_MYSQL_ROOT_PASSWORD={{ db_password }}
 {% endif %}
 
+{% if use_pritunl %}
+  pritunl:
+    image: 'jippi/pritunl:latest'
+    privileged: true
+    ports:
+      - '1194:1194/udp'
+      - '1194:1194/tcp'
+    volumes:
+      - '/mnt/docker/pritunl:/var/lib/pritunl'
+      - '/mnt/docker/mongo:/var/lib/mongodb'
+{% endif %}
+
   # Web server
   # https://github.com/Wonderfall/dockerfiles/tree/master/nginx
   # https://nginx.org/
@@ -188,6 +200,9 @@ services:
 {% endif %}
 {% if use_poweradmin %}
       - poweradmin
+{% endif %}
+{% if use_pritunl %}
+      - pritunl
 {% endif %}
 {% if www_is_wordpress %}
       - wordpress

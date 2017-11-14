@@ -119,6 +119,9 @@ if [ $use_opencart != "false" ]; then
   echo ""
 fi
 
+use_pritunl=false
+prompt_with_default "Use Pritunl VON Server as VPN site" use_pritunl -stored
+
 echo ""
 echo "NOTE: When DB is initialized, database passwords are set."
 echo "If you need to change them, you'll need to connect to DB."

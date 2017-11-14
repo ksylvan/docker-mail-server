@@ -50,3 +50,10 @@
     chdir: ~{{ deploy_user_name }}
   become_user: "{{ deploy_user_name }}"
   when: nginx_is_running
+
+- name: restart pritunl
+  shell: docker-compose stop pritunl; docker-compose up -d pritunl
+  args:
+    chdir: ~{{ deploy_user_name }}
+  become_user: "{{ deploy_user_name }}"
+  when: nginx_is_running
