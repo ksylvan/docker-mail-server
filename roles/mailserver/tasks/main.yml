@@ -199,7 +199,7 @@
     - restart pritunl
   when: use_pritunl
 ￼ 
- - block:
+- block:
   - name: Web files here?
     local_action: shell ls www/{{ domain_name }} 2>/dev/null || true
     register: www_dir
