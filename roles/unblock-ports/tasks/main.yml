@@ -13,4 +13,10 @@
   - 587
   - 993
   - 995
+  - 1194
   - 4190
+- name: unblock the needed ports for UDP
+  ufw: rule=allow port={{ item }} proto=udp
+  with_items:
+  - 53
+  - 1194

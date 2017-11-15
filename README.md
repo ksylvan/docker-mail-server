@@ -35,6 +35,8 @@ If using `opencart`, also add a CNAME entry for `store`.
 
 If using `poweradmin`, also add a CNAME entry for `poweradmin`.
 
+If using `pritunl`, also add a CNAME entry for `vpn`.
+
 - Create a recent Debian or Fedora server, using whatever process you choose.
   I created a Debian 9 (Stretch) server in the cloud. Also tested with
   a Fedora 26 Server instance.

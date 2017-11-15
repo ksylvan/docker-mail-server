@@ -182,6 +182,24 @@
   when: use_poweradmin
 
 - block:
+  - name: Set up pritunl directory
+    file:
+      path: /mnt/docker/pritunl
+      state: directory
+      recurse: yes
+      mode: 0777
+  - name: Set up pritunl nginx site
+    template:
+      src: files/nginx/www-pritunl.conf
+      dest: /mnt/docker/nginx/sites-enabled/pritunl.conf
+      owner: 991
+      group: 991
+    notify:
+    - restart nginx
+    - restart pritunl
+  when: use_pritunl
+
+- block:
   - name: Web files here?
     local_action: shell ls www/{{ domain_name }} 2>/dev/null || true
     register: www_dir

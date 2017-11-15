@@ -1,3 +1,4 @@
 ---
 use_opencart: false
 use_poweradmin: false
+use_pritunl: false
