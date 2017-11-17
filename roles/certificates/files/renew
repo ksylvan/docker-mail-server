@@ -1,5 +1,6 @@
 #!/bin/sh
 c=/usr/local/bin/certbot
+d=/usr/local/bin/docker-compose
 
 LIMIT=5
 DAYS=$($c certificates 2>/dev/null |
@@ -14,9 +15,9 @@ then
 else
   if [ $DAYS -lt $LIMIT ]; then
     cd /home/{{ deploy_user_name }}
-    docker-compose stop nginx > $msg 2>&1
+    $d stop nginx > $msg 2>&1
     $c renew >> $msg 2>&1
-    docker-compose start nginx >> $msg 2>&1
+    $d start nginx >> $msg 2>&1
     SUBJECT="Cert Renewal Attempt (Valid for $DAYS days)"
   else
     SUBJECT="Cert is still valid (for $DAYS days)"

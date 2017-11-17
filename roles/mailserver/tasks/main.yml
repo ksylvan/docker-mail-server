@@ -230,33 +230,69 @@
 
 - name: Set up www site with files.
   block:
+  - local_action:
+      module: file
+      path: www/{{ domain_name }}/{{ item }}
+      args:
+        state: directory
+    with_items:
+    - static
+    - people
+    - files
+    become: false
   # now create dirs under /mnt/docker/www
+  - file:
+      path: /mnt/docker/www/files/{{ item.path }}
+      state: directory
+      recurse: yes
+      owner: 991
+      group: 991
+    with_filetree: www/{{ domain_name}}/files
+    when: item.state == 'directory'
+  - file:
+      path: /mnt/docker/www/people/{{ item.path }}
+      state: directory
+      recurse: yes
+      owner: 991
+      group: 991
+    with_filetree: www/{{ domain_name}}/people
+    when: item.state == 'directory'
   - file:
       path: /mnt/docker/www/{{ item.path }}
       state: directory
       recurse: yes
       owner: 991
       group: 991
-    with_filetree: www/{{ domain_name}}
+    with_filetree: www/{{ domain_name}}/static
     when: item.state == 'directory'
 
   # list of text files
   - local_action:
       module: |
-        shell find . -type f | xargs file -i |
+        shell find . -type f | egrep -v '^\./static/' | xargs file -i |
         egrep 'text/plain|text/html' | awk -F: '{print $1}'
       args:
         chdir: www/{{ domain_name }}
     register: web_text_files
     changed_when: false
+
   # list of binary files
   - local_action:
       module: |
-        shell find . -type f | xargs file -i |
+        shell find . -type f | egrep -v '^./static/' | xargs file -i |
         egrep -v 'text/plain|text/html' | awk -F: '{print $1}'
       args:
         chdir: www/{{ domain_name }}
     register: web_binary_files
+    changed_when: false
+
+  # list of static files
+  - local_action:
+      module: |
+        shell find . -type f
+      args:
+        chdir: www/{{ domain_name }}/static
+    register: web_static_files
     changed_when: false
 
   # now create files with template
@@ -276,6 +312,15 @@
       owner: 991
       group: 991
     with_items: "{{ web_binary_files.stdout_lines }}"
+
+  # Copy the static files
+  - name: Update web site static files
+    copy:
+      src: www/{{ domain_name }}/static/{{ item }}
+      dest: /mnt/docker/www/{{ item }}
+      owner: 991
+      group: 991
+    with_items: "{{ web_static_files.stdout_lines }}"
 
   # Now for the website nginx config
   - name: Set up the nginx config

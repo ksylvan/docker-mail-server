@@ -131,6 +131,17 @@ create an alterate setup:
 * / will refer to what you place in `www/yourdomain.tld/files/`
 * /~user will refer to what you place in `www/yourdomain.tld/people/user/`
 
+Any text files placed in the `files/` or `people` subdirectories of
+`www/yourdomain.tld` will be installed using the `jinja2` template
+copy, enabling you to use variables like `{{ domain_name }}` in
+your files.
+
+Occasionally, this template mechanism does not work well (javascript
+source code, for example). To work around this, if you place
+files in a `static/` subtree, they will be copied without
+templating. Place files in `static/files/` and `static/people/user` to
+have them installed in the correct places.
+
 Note that files placed in `www/` are ignored by git and will have
 to be backed up.
 
