@@ -9,3 +9,4 @@ use_poweradmin: false
 opencart_user: opencart
 opencart_password: op3Nc1rT
 opencart_from: admin@{{ domain_name }}
+use_pritunl: false
