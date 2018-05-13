@@ -18,6 +18,7 @@ else
     $d stop nginx > $msg 2>&1
     $c renew >> $msg 2>&1
     $d start nginx >> $msg 2>&1
+    $d restart mailserver >> $msg 2>&1
     SUBJECT="Cert Renewal Attempt (Valid for $DAYS days)"
   else
     SUBJECT="Cert is still valid (for $DAYS days)"
