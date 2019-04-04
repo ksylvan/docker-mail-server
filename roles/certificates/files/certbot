@@ -9,4 +9,4 @@ esac
 
 docker run --rm -i $P \
   -v /mnt/docker/nginx/certs:/etc/letsencrypt \
-  kayvan/letsencrypt ${1+"$@"}
+  certbot/certbot ${1+"$@"}

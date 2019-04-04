@@ -43,7 +43,7 @@
   when: "'mosh' in optional_packages"
 
 - name: Setup ufw (with deny default now)
-  ufw: state=enabled policy=deny
+  ufw: state=enabled policy=deny direction=incoming
 
 - name: ensure ufw service is enabled
   service: name=ufw enabled=yes
