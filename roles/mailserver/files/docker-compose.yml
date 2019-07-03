@@ -172,7 +172,7 @@ services:
   # https://nginx.org/
   # Configuration : https://github.com/hardware/mailserver/wiki/Reverse-proxy-configuration
   nginx:
-    image: wonderfall/boring-nginx
+    image: kayvan/boring-nginx
     container_name: nginx
     restart: on-failure
     ports:
