@@ -82,7 +82,7 @@ services:
 {% if www_is_wordpress %}
   # Wordpress container setup
   wordpress:
-    image: wordpress:4-php7.1-fpm-alpine
+    image: wordpress:5-php7.1-fpm-alpine
     container_name: wordpress
     depends_on:
       - mariadb
